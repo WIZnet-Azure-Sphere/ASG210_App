@@ -6,8 +6,8 @@ cmake_minimum_required(VERSION 3.10)
 
 PROJECT(HLApp_AzureIoT_WIZASG200 C)
 
-azsphere_configure_tools(TOOLS_REVISION "20.04")
-azsphere_configure_api(TARGET_API_SET "5+Beta2004")
+azsphere_configure_tools(TOOLS_REVISION "20.07")
+azsphere_configure_api(TARGET_API_SET "6")
 
 # Create executable
 ADD_EXECUTABLE(${PROJECT_NAME} main.c eventloop_timer_utilities.c parson.c)
@@ -15,7 +15,7 @@ TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC ${AZURE_SPHERE_API_SET_DIR}/us
 TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME} PUBLIC AZURE_IOT_HUB_CONFIGURED)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} m azureiot applibs pthread gcc_s c)
 
-azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "../../Hardware/wiznet_asg200" TARGET_DEFINITION "wiznet_asg200.json")
+azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "../../Hardware/usi_mt3620_bt_combo" TARGET_DEFINITION "usi_mt3620_bt_combo.json")
 
 find_program(POWERSHELL powershell.exe)
 if (POWERSHELL)

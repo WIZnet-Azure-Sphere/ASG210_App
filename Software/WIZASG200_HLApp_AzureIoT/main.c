@@ -46,7 +46,11 @@
 // See https://github.com/Azure/azure-sphere-samples/tree/master/Hardware for more details.
 //
 // This #include imports the wiznet_asg200 abstraction from that hardware definition.
+#if 0
 #include <hw/wiznet_asg200.h>
+#else
+#include <hw/usi_mt3620_bt_evb.h>
+#endif
 
 #include "eventloop_timer_utilities.h"
 
@@ -141,7 +145,7 @@ static void GetSystemTime(void);
 
 #ifdef SIMUL_DATA
 // Function to generate simulated Temperature data/telemetry
-// static void SendSimulatedTemperature(void);
+static void SendSimulatedTemperature(void);
 static void SendTelemetry(const unsigned char *key, const unsigned char *value);
 #endif
 static void SendJsonTelemetry(const unsigned char *value);
@@ -178,6 +182,7 @@ static int ethStatusLedGpioFd = -1;
 #if 1 //lawrence
 static int eth1StatusLedGpioFd = -1;
 #endif
+static int bleStatusLedGpioFd = -1;
 
 // LED
 // static int deviceTwinStatusLedGpioFd = -1;
@@ -388,8 +393,8 @@ static void SendTimeData(void)
     time_t t;
     time(&t);
     struct tm *tm = gmtime(&t);
-    if (strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d %H:%M:%S", tm) != 0) {
-        Log_Debug("INFO: Time data: %s\n", timeBuf);
+    if (strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d %H:%M:%S", tm) == 0) {
+        Log_Debug("INFO: Time data failed\n");
     }
 
     int bytesSent = send(sockFd, timeBuf, strlen(timeBuf), 0);
@@ -505,7 +510,9 @@ static int OutputStoredWifiNetworks(void)
         if (storedNetworksArray[i].isConnected)
         {
             wifi_connected = true;
+#ifdef USE_DEBUG
             Log_Debug("WiFi[%d] Connected \n", i);
+#endif
         }
     }
     storedNetworkCnt = i;
@@ -783,7 +790,7 @@ static void AzureTimerEventHandler(EventLoopTimer *timer)
         }
     }
 
-#if 0
+#if 1
     if (iothubAuthenticated) {
 #ifdef SIMUL_DATA
         SendSimulatedTemperature();
@@ -814,38 +821,46 @@ static ExitCode InitPeripheralsAndHandlers(void)
     }
 
 #if 1 // init led
-    Log_Debug("Opening WIZNET_ASG200_CONNECTION_STATUS_LED as output\n");
+    Log_Debug("Opening USI_MT3620_BT_COMBO_PIN28_GPIO41 as output\n");
     azureStatusLedGpioFd =
-        GPIO_OpenAsOutput(WIZNET_ASG200_CONNECTION_STATUS_LED, GPIO_OutputMode_PushPull, GPIO_Value_High);
+        GPIO_OpenAsOutput(USI_MT3620_BT_COMBO_PIN28_GPIO41, GPIO_OutputMode_PushPull, GPIO_Value_High);
     if (azureStatusLedGpioFd < 0)
     {
         Log_Debug("ERROR: Could not open LED: %s (%d).\n", strerror(errno), errno);
         return -1;
     }
 
-    Log_Debug("Opening WIZNET_ASG200_ETH0_STATUS_LED as output\n");
+    Log_Debug("Opening USI_MT3620_BT_COMBO_PIN26_GPIO43 as output\n");
     ethStatusLedGpioFd =
-        GPIO_OpenAsOutput(WIZNET_ASG200_ETH0_STATUS_LED, GPIO_OutputMode_PushPull, GPIO_Value_High);
+        GPIO_OpenAsOutput(USI_MT3620_BT_COMBO_PIN26_GPIO43, GPIO_OutputMode_PushPull, GPIO_Value_High);
     if (ethStatusLedGpioFd < 0)
     {
         Log_Debug("ERROR: Could not open LED: %s (%d).\n", strerror(errno), errno);
         return -1;
     }
 
-    Log_Debug("Opening WIZNET_ASG200_WLAN_STATUS_LED as output\n");
+    Log_Debug("Opening USI_MT3620_BT_COMBO_PIN27_GPIO42 as output\n");
     wifiStatusLedGpioFd =
-        GPIO_OpenAsOutput(WIZNET_ASG200_WLAN_STATUS_LED, GPIO_OutputMode_PushPull, GPIO_Value_High);
+        GPIO_OpenAsOutput(USI_MT3620_BT_COMBO_PIN27_GPIO42, GPIO_OutputMode_PushPull, GPIO_Value_High);
     if (wifiStatusLedGpioFd < 0)
     {
         Log_Debug("ERROR: Could not open LED: %s (%d).\n", strerror(errno), errno);
         return -1;
     }
 #if 1 //lawrence
-    Log_Debug("Opening WIZNET_ASG200_ETH1_STATUS_LED as output\n");
+    Log_Debug("Opening USI_MT3620_BT_COMBO_PIN25_GPIO44 as output\n");
     eth1StatusLedGpioFd =
-        GPIO_OpenAsOutput(WIZNET_ASG200_ETH1_STATUS_LED, GPIO_OutputMode_PushPull, GPIO_Value_High);
+        GPIO_OpenAsOutput(USI_MT3620_BT_COMBO_PIN25_GPIO44, GPIO_OutputMode_PushPull, GPIO_Value_High);
     if (eth1StatusLedGpioFd < 0)
     {
+        Log_Debug("ERROR: Could not open LED: %s (%d).\n", strerror(errno), errno);
+        return -1;
+    }
+
+    Log_Debug("Opening USI_MT3620_BT_COMBO_PIN24_GPIO45 as output\n");
+    bleStatusLedGpioFd =
+        GPIO_OpenAsOutput(USI_MT3620_BT_COMBO_PIN24_GPIO45, GPIO_OutputMode_PushPull, GPIO_Value_High);
+    if (bleStatusLedGpioFd < 0) {
         Log_Debug("ERROR: Could not open LED: %s (%d).\n", strerror(errno), errno);
         return -1;
     }
@@ -956,6 +971,9 @@ static void ClosePeripheralsAndHandlers(void)
     {
         GPIO_SetValue(wifiStatusLedGpioFd, GPIO_Value_High);
     }
+    if (bleStatusLedGpioFd >= 0) {
+        GPIO_SetValue(bleStatusLedGpioFd, GPIO_Value_High);
+    }
 #if 1 //lawrence
     if (eth1StatusLedGpioFd >= 0)
     {
@@ -969,6 +987,7 @@ static void ClosePeripheralsAndHandlers(void)
 #if 1 //lawrence
     CloseFdAndPrintError(eth1StatusLedGpioFd, "eth1StatusLed");
 #endif
+    CloseFdAndPrintError(bleStatusLedGpioFd, "bleStatusLed");
     CloseFdAndPrintError(sockFd, "Socket");
 }
 
@@ -1336,7 +1355,7 @@ static void ReportStatusCallback(int result, void *context)
     Log_Debug("INFO: Device Twin reported properties update result: HTTP status code %d\n", result);
 }
 
-#if 0
+#ifdef SIMUL_DATA
 /// <summary>
 ///     Generates a simulated Temperature and sends to IoT Hub.
 /// </summary>
