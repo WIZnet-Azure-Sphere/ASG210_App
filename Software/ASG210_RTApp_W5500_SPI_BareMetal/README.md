@@ -1,10 +1,10 @@
 
-# WIZASG200_RTApp_W5500_SPI_BareMetal
+# ASG210_RTApp_W5500_SPI_BareMetal
 
 Real-time (RT) capable application run on bare metal or with a real-time operating system on the real-time cores.
-In ASG200, RTApp (Real-time capable Application) is `RTApp_W5500_SPI_BareMetal_WIZASG200` and it controls WIZnet W5500 ethernet chip and provides variety protocol communications with legacy devices on brown field. Also, it performs inter-core communication between RTApp and HLApp (High-level Application).
+In ASG210, RTApp (Real-time capable Application) is `ASG210_RTApp_W5500_SPI_BareMetal` and it controls WIZnet W5500 ethernet chip and provides variety protocol communications with legacy devices on brown field. Also, it performs inter-core communication between RTApp and HLApp (High-level Application).
 
-`RTApp_W5500_SPI_BareMetal_WIZASG200` is performed as the followed:
+`ASG210_RTApp_W5500_SPI_BareMetal` is performed as the followed:
 
 - WIZnet W5500 SPI control
   - Local network communication with brown field
@@ -23,7 +23,7 @@ The application can be run and developed with Visual Studio and Visual Studio Co
 
 Follow these steps to build and run the application with Visual Studio:
 
-1. Start Visual Studio, From the File menu, select `Open` > `Folder` and navigate to the folder, `WIZASG200_RTApp_W5500_SPI_BareMetal`.
+1. Start Visual Studio, From the File menu, select `Open` > `Folder` and navigate to the folder, `ASG210_RTApp_W5500_SPI_BareMetal`.
 
 2. From the Select Startup Item menu, on the tool bar, select `GDB Debugger (RTCore)`.
 
@@ -39,7 +39,7 @@ Follow these steps to build and run the application with Visual Studio:
 
 Follow these steps to build and run the application with Visual Studio Code:
 
-1. Open `WIZASG200_RTApp_W5500_SPI_BareMetal` folder.
+1. Open `ASG210_RTApp_W5500_SPI_BareMetal` folder.
 
 ![Visual Studio Code - Open Project Folder](../../Docs/references/visual-studio-code-open-project-folder.png)
 

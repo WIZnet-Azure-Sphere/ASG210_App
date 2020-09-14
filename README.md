@@ -1,6 +1,6 @@
-# ASG200 User Guide
+# ASG210 User Guide
 
-WIZnet Azure Sphere Guardian 200 (ASG200) is a product which provides Ethernet interfaces to both Public and Private Network. This is how to set up ASG200 for data communication between your device and Azure IoT Cloud with ASG200.
+WIZnet Azure Sphere Guardian 200 (ASG210) is a product which provides Ethernet interfaces to both Public and Private Network. This is how to set up ASG210 for data communication between your device and Azure IoT Cloud with ASG210.
 
 ![Azure Sphere Guardian 200](./Docs/references/azure-sphere-guardian-200.png)
 
@@ -17,8 +17,8 @@ WIZnet Azure Sphere Guardian 200 (ASG200) is a product which provides Ethernet i
   - [Azure Sphere CLI](#azure-sphere-cli)
   - [Register User Account](#register-user-account)
   - [Azure Sphere Tenant](#azure-sphere-tenant)
-  - [ASG200 Claim](#asg200-claim)
-  - [ASG200 Configuration](#asg200-configuration)
+  - [ASG210 Claim](#asg210-claim)
+  - [ASG210 Configuration](#asg210-configuration)
 
 - [Run Application](#run-application)
   - [Real-time capable Application: W5500 SPI BareMetal](#real-time-capable-application-w5500-spi-baremetal)
@@ -70,7 +70,7 @@ Below is example settings for Visual Studio Code:
 ## Azure Sphere Debugger
 
 The MT3620 exposes two dedicated UARTs and SWD interface for debugging. The Azure Sphere PC software tools require the use of a USB-to-UART interface that exposes these interfaces to a PC in away that allows the tools to recognize and interact with them.
-For this, ASG200 components have a ‘Debugger’ board which can attaches to 18pin headers on ASG200. To use this debugger board, user should init the interface information with FTDI tools.
+For this, ASG210 components have a ‘Debugger’ board which can attaches to 18pin headers on ASG210. To use this debugger board, user should init the interface information with FTDI tools.
 
 Please follow these steps described in this link:
 
@@ -134,21 +134,21 @@ There is no existed Azure Sphere tenant or assigned role in it. User can create 
    azsphere tenant create -n <tenant name>
    ```
 
-## ASG200 Claim
+## ASG210 Claim
 
-Check the selected tenant for development environment. Once ASG200 claimed to the Azure Sphere tenant, claiming to other tenant is prohibited followed Azure Sphere Security policy.
+Check the selected tenant for development environment. Once ASG210 claimed to the Azure Sphere tenant, claiming to other tenant is prohibited followed Azure Sphere Security policy.
 
-1. Claim ASG200 to the selected tenant
+1. Claim ASG210 to the selected tenant
 
    ```
    azsphere device claim
    ```
 
-## ASG200 Configuration
+## ASG210 Configuration
 
 ### Recovery interface
 
-Once ASG200 is connected to the internet, Azure Sphere OS updates are initiated automatically via OTA (Over The Air) Wi-Fi interface. Also, user can manually update Azure Sphere OS with recovery. Recovery is the process of replacing the latest system software on the device using a special recovery bootloader instead of cloud update.
+Once ASG210 is connected to the internet, Azure Sphere OS updates are initiated automatically via OTA (Over The Air) Wi-Fi interface. Also, user can manually update Azure Sphere OS with recovery. Recovery is the process of replacing the latest system software on the device using a special recovery bootloader instead of cloud update.
 
 Follow these steps to update the latest Azure Sphere OS:
 
@@ -178,7 +178,7 @@ Follow these steps to update the latest Azure Sphere OS:
 
 ### Development Mode
 
-Connect Debugger board which is attached to ASG200 debug interface to PC and set development mode for debugging on In Azure Sphere Developer Command Prompt Preview. 
+Connect Debugger board which is attached to ASG210 debug interface to PC and set development mode for debugging on In Azure Sphere Developer Command Prompt Preview. 
 
 On development mode, OTA is inactivated.
 
@@ -194,21 +194,21 @@ On development mode, OTA is inactivated.
 
 # Run Application
 
-For the ASG200 application, chapter 5, Development Environment, is preceded.
+For the ASG210 application, chapter 5, Development Environment, is preceded.
 
-ASG200 application has two types of applications, High-level application and Real-time capable application.
+ASG210 application has two types of applications, High-level application and Real-time capable application.
 
 ### To Clone this repository:
 ```
-$ git clone https://github.com/WIZnet-Azure-Sphere/ASG200_App
+$ git clone https://github.com/WIZnet-Azure-Sphere/ASG210_App
 ```
 
 Refer each application page for details on how to use.
 
 ## Real-time capable Application: W5500 SPI BareMetal
 
-* [Run Real-time capable Application: W5500 SPI BareMetal](https://github.com/WIZnet-Azure-Sphere/ASG200_App/tree/master/Software/WIZASG200_RTApp_W5500_SPI_BareMetal)
+* [Run Real-time capable Application: W5500 SPI BareMetal](https://github.com/WIZnet-Azure-Sphere/ASG210_App/tree/master/Software/WIZASG210_RTApp_W5500_SPI_BareMetal)
 
 ## High-level Application: AzureIoT
 
-* [Run High-level Application: AzureIoT](https://github.com/WIZnet-Azure-Sphere/ASG200_App/tree/master/Software/WIZASG200_HLApp_AzureIoT)
+* [Run High-level Application: AzureIoT](https://github.com/WIZnet-Azure-Sphere/ASG210_App/tree/master/Software/WIZASG210_HLApp_AzureIoT)

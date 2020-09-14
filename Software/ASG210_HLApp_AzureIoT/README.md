@@ -1,9 +1,9 @@
 
-# WIZASG200_HLApp_AzureIoT
+# ASG210_HLApp_AzureIoT
 
-High-level (HL) application run containerized on the Azure Sphere OS. In ASG200, HLApp (High-level application) is `HLApp_AzureIoT_WIZASG200` and it provides whole functions for Azure IoT Cloud service. Also, it automatically switches global interface, Ethernet and Wi-Fi, for network condition.
+High-level (HL) application run containerized on the Azure Sphere OS. In ASG210, HLApp (High-level application) is `ASG210_HLApp_AzureIoT` and it provides whole functions for Azure IoT Cloud service. Also, it automatically switches global interface, Ethernet and Wi-Fi, for network condition.
 
-HLApp_AzureIoT_WIZASG200 is performed as the followed:
+ASG210_HLApp_AzureIoT is performed as the followed:
 
 - Global network communication with Azure IoT Cloud service
   - Ethernet and Wi-Fi interface
@@ -13,7 +13,7 @@ HLApp_AzureIoT_WIZASG200 is performed as the followed:
 
 ## Configure an IoT Hub
 
-To operate ASG200 application, RTApp and HLApp, Azure IoT Hub or IoT Central configuration is required.
+To operate ASG210 application, RTApp and HLApp, Azure IoT Hub or IoT Central configuration is required.
 
 [Set up an Azure IoT Hub for Azure Sphere](https://docs.microsoft.com/en-us/azure-sphere/app-development/setup-iot-hub)
 
@@ -21,7 +21,7 @@ To operate ASG200 application, RTApp and HLApp, Azure IoT Hub or IoT Central con
 
 Then, user will need to supply the following information in the app_manifest.json file for Azure IoT:
 
-- The Tenant ID for ASG200
+- The Tenant ID for ASG210
 - The Scope ID for Azure device provisioning service (DPS) instance
 - The Azure IoT Hub URL for user IoT Hub or Central along with the global access link to DPS (global.azure-devices.provisiong.net)
 
@@ -30,22 +30,20 @@ In app_manifest.json, add Azure DPS Scope ID, Azure IoT Hub endpoint URL and Azu
 ```
 {
   "SchemaVersion": 1,
-  "Name": "HLApp_AzureIoT_WIZASG200",
+  "Name": "ASG210_HLApp_AzureIoT",
   "ComponentId": "819255ff-8640-41fd-aea7-f85d34c491d5",
   "EntryPoint": "/bin/app",
-  "CmdArgs": ["<Azure DPS Scope ID>"],
+  "CmdArgs": [ "<Azure DPS Scope ID>" ],
   "Capabilities": {
-    "AllowedConnections": [
-      "global.azure-devices-provisioning.net",
-      "<Azure IoT Hub endpoint URL>"
-    ],
+    "AllowedConnections": [ "global.azure-devices-provisioning.net", "<Azure IoT Hub endpoint URL>" ],
     "DeviceAuthentication": "<Azure Sphere Tenant ID>",
-    "AllowedApplicationConnections": ["005180bc-402f-4cb3-a662-72937dbcde47"],
+    "AllowedApplicationConnections": [ "005180bc-402f-4cb3-a662-72937dbcde47" ],
     "Gpio": [
-      "$WIZNET_ASG200_CONNECTION_STATUS_LED",
-      "$WIZNET_ASG200_WLAN_STATUS_LED",
-      "$WIZNET_ASG200_ETH0_STATUS_LED",
-      "$WIZNET_ASG200_ETH1_STATUS_LED"
+      "$USI_MT3620_BT_COMBO_PIN28_GPIO41",
+      "$USI_MT3620_BT_COMBO_PIN27_GPIO42",
+      "$USI_MT3620_BT_COMBO_PIN26_GPIO43",
+      "$USI_MT3620_BT_COMBO_PIN25_GPIO44",
+      "$USI_MT3620_BT_COMBO_PIN24_GPIO45"
     ],
     "NetworkConfig": true,
     "WifiConfig": true
@@ -56,7 +54,7 @@ In app_manifest.json, add Azure DPS Scope ID, Azure IoT Hub endpoint URL and Azu
 
 ## Set up Public Ethernet interface
 
-To enable ethernet interface for public network and communication with Azure IoT, install ethernet imagepackage by deploying a board configuration image to ASG200. The board configuration image contains information that the Azure Sphere Security Service requires to add support for Ethernet to the Azure Sphere OS.
+To enable ethernet interface for public network and communication with Azure IoT, install ethernet imagepackage by deploying a board configuration image to ASG210. The board configuration image contains information that the Azure Sphere Security Service requires to add support for Ethernet to the Azure Sphere OS.
 
 Follow these steps to enable public ethernet interface:
 
@@ -66,7 +64,7 @@ Follow these steps to enable public ethernet interface:
    azsphere image-package pack-board-config –-preset lan-enc28j60-isu0-int5 –-output enc28j60-isu0-int5.imagepackage
    ```
 
-2. Prepare ASG200 for development mode
+2. Prepare ASG210 for development mode
 
    ```
    azsphere device enable-development
@@ -94,7 +92,7 @@ The application can be run and developed with Visual Studio and Visual Studio Co
 
 Follow these steps to build and run the application with Visual Studio:
 
-1. Start Visual Studio, From the File menu, select Open > Folder… and navigate to the folder, `HLApp_AzureIoT_ASG200`.
+1. Start Visual Studio, From the File menu, select Open > Folder… and navigate to the folder, `ASG210_HLApp_AzureIoT`.
 
 2. Open app_manifest.json file and check the information correct.
 
@@ -114,7 +112,7 @@ Follow these steps to build and run the application with Visual Studio:
 
 Follow these steps to build and run the application with Visual Studio Code:
 
-1. Open `HLApp_AzureIoT_ASG200` folder.
+1. Open `ASG210_HLApp_AzureIoT` folder.
 
 ![Visual Studio Code - Open Project Folder](../../Docs/references/visual-studio-code-open-project-folder.png)
 

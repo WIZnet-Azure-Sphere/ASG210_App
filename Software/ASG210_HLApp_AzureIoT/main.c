@@ -49,7 +49,7 @@
 #if 0
 #include <hw/wiznet_asg200.h>
 #else
-#include <hw/usi_mt3620_bt_evb.h>
+#include <hw/usi_mt3620_bt_combo.h>
 #endif
 
 #include "eventloop_timer_utilities.h"
@@ -1006,7 +1006,7 @@ static void HubConnectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result,
     {
         // Send static device twin properties when connection is established
         TwinReportState(
-            "{\"Manufacturer\":\"WIZnet\",\"Model\":\"ASG200-DEMO\",\"HLAppVer\":\"1.0.1\",\"RTAppVer\":\"1.0.0\",\"LocalNetwork\":\"true\"}");
+            "{\"Manufacturer\":\"WIZnet\",\"Model\":\"ASG210-DEMO\",\"HLAppVer\":\"1.0.0\",\"RTAppVer\":\"1.0.0\",\"LocalNetwork\":\"true\"}");
     }
 #endif
 }

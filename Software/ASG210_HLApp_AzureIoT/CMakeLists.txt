@@ -4,7 +4,7 @@
 # CMAKE_MINIMUM_REQUIRED(VERSION 3.8)
 cmake_minimum_required(VERSION 3.10)
 
-PROJECT(HLApp_AzureIoT_WIZASG200 C)
+PROJECT(ASG210_HLApp_AzureIoT C)
 
 azsphere_configure_tools(TOOLS_REVISION "20.07")
 azsphere_configure_api(TARGET_API_SET "6")

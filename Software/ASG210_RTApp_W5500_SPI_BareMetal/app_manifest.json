@@ -1,6 +1,6 @@
 {
   "SchemaVersion": 1,
-  "Name": "WIZASG200_RTApp_W5500_SPI_BareMetal",
+  "Name": "ASG210_RTApp_W5500_SPI_BareMetal",
   "ComponentId": "005180bc-402f-4cb3-a662-72937dbcde47",
   "EntryPoint": "/bin/app",
   "CmdArgs": [],

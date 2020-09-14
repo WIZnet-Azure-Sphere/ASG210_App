@@ -9,7 +9,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Configurations
-project(WIZASG200_RTApp_W5500_SPI_BareMetal C)
+project(ASG210_RTApp_W5500_SPI_BareMetal C)
 
 azsphere_configure_tools(TOOLS_REVISION "20.07")
 

@@ -1,6 +1,6 @@
 {
   "SchemaVersion": 1,
-  "Name": "HLApp_AzureIoT_WIZASG200",
+  "Name": "ASG210_HLApp_AzureIoT",
   "ComponentId": "819255ff-8640-41fd-aea7-f85d34c491d5",
   "EntryPoint": "/bin/app",
   "CmdArgs": [ "<Azure DPS Scope ID>" ],
