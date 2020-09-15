@@ -2,7 +2,7 @@
 
 WIZnet Azure Sphere Guardian 200 (ASG210) is a product which provides Ethernet interfaces to both Public and Private Network. This is how to set up ASG210 for data communication between your device and Azure IoT Cloud with ASG210.
 
-![Azure Sphere Guardian 200](./Docs/references/azure-sphere-guardian-200.png)
+![Azure Sphere Guardian 200](https://doc.wiznet.io/img/AzureSphere/ASG210_board_description.png)
 
 # Contents
 
@@ -51,10 +51,10 @@ Then complete Azure Sphere SDK Extension Install for development tool.
 - [For Visual Studio, Azure Sphere SDK Extension Install](https://docs.microsoft.com/en-us/azure-sphere/install/development-environment-windows#develop-with-visual-studio)
 - [For Visual Studio Code, Azure Sphere SDK Extension Install](https://docs.microsoft.com/en-us/azure-sphere/install/development-environment-windows#develop-with-visual-studio-code)
 
-
 ### Visual Studio Code settings.json
 
 Below is example settings for Visual Studio Code:
+
 ```
 ...
    "cmake.cmakePath": "C:\\Program Files\\CMake\\bin\\cmake.exe",
@@ -65,7 +65,6 @@ Below is example settings for Visual Studio Code:
    "AzureSphere.SdkPath": "C:\\Program Files (x86)\\Microsoft Azure Sphere SDK",
 ...
 ```
-
 
 ## Azure Sphere Debugger
 
@@ -178,19 +177,19 @@ Follow these steps to update the latest Azure Sphere OS:
 
 ### Development Mode
 
-Connect Debugger board which is attached to ASG210 debug interface to PC and set development mode for debugging on In Azure Sphere Developer Command Prompt Preview. 
+Connect Debugger board which is attached to ASG210 debug interface to PC and set development mode for debugging on In Azure Sphere Developer Command Prompt Preview.
 
 On development mode, OTA is inactivated.
 
 1. Development mode for debugging (Add option for RT App debugging)
 
->`--enablertcoredebugging` option requires administrator privilege because it installs USB drivers for the debugger.
+> `--enablertcoredebugging` option requires administrator privilege because it installs USB drivers for the debugger.
 
->Right-click the Azure Sphere Developer Command Prompt shortcut and select More>Run as administrator.
+> Right-click the Azure Sphere Developer Command Prompt shortcut and select More>Run as administrator.
 
-   ```
-   azsphere device enable-development --enablertcoredebugging
-   ```
+```
+azsphere device enable-development --enablertcoredebugging
+```
 
 # Run Application
 
@@ -199,16 +198,17 @@ For the ASG210 application, chapter 5, Development Environment, is preceded.
 ASG210 application has two types of applications, High-level application and Real-time capable application.
 
 ### To Clone this repository:
+
 ```
 $ git clone https://github.com/WIZnet-Azure-Sphere/ASG210_App
 ```
 
 Refer each application page for details on how to use.
 
-## Real-time capable Application: W5500 SPI BareMetal
+## Real-time capable Examples
 
-* [Run Real-time capable Application: W5500 SPI BareMetal](https://github.com/WIZnet-Azure-Sphere/ASG210_App/tree/master/Software/WIZASG210_RTApp_W5500_SPI_BareMetal)
+- [Run Real-time capable Examples](https://github.com/WIZnet-Azure-Sphere/ASG210-M4-Samples/tree/master/Sample_Code/BareMetal)
 
-## High-level Application: AzureIoT
+## High-level Application
 
-* [Run High-level Application: AzureIoT](https://github.com/WIZnet-Azure-Sphere/ASG210_App/tree/master/Software/WIZASG210_HLApp_AzureIoT)
+- [Run High-level Application](https://github.com/WIZnet-Azure-Sphere/ASG210_App)
