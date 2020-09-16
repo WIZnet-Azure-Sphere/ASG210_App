@@ -1,6 +1,6 @@
 # ASG210 User Guide
 
-WIZnet Azure Sphere Guardian 200 (ASG210) is a product which provides Ethernet interfaces to both Public and Private Network. This is how to set up ASG210 for data communication between your device and Azure IoT Cloud with ASG210.
+WIZnet Azure Sphere Guardian 210 (ASG210) is a product which provides Ethernet interfaces to both Public and Private Network. This is how to set up ASG210 for data communication between your device and Azure IoT Cloud with ASG210.
 
 ![Azure Sphere Guardian 200](https://doc.wiznet.io/img/AzureSphere/ASG210_board_description.png)
 
@@ -69,6 +69,7 @@ Below is example settings for Visual Studio Code:
 ## Azure Sphere Debugger
 
 The MT3620 exposes two dedicated UARTs and SWD interface for debugging. The Azure Sphere PC software tools require the use of a USB-to-UART interface that exposes these interfaces to a PC in away that allows the tools to recognize and interact with them.
+
 For this, ASG210 components have a ‘Debugger’ board which can attaches to 18pin headers on ASG210. To use this debugger board, user should init the interface information with FTDI tools.
 
 Please follow these steps described in this link:
@@ -86,7 +87,8 @@ For the more details, enter the below link:
 
 On Azure Sphere Developer Command Prompt Preview, the option, -?, helps to show the command information.
 
-![Azure Sphere CLI - ? option](./Docs/references/azure-sphere-cli-question-opeion.png)
+![Azure Sphere CLI - ? option](https://github.com/WIZnet-Azure-Sphere/ASG200_App/blob/master/Docs/references/azure-sphere-cli-question-opeion.png?raw=true)
+
 
 ## Register User Account
 
@@ -95,9 +97,9 @@ To manage Azure Sphere elements for development, log in Azure Sphere Developer C
 1.  Log in on `azsphere login` command
     (Needed the option, –-newuser, with `azsphere login` command to register the account only have to sign in once.)
 
-        ```
-        azsphere login --newuser <MS account>
-        ```
+      ```
+      azsphere login --newuser <MS account>
+      ```
 
 ## Azure Sphere Tenant
 
