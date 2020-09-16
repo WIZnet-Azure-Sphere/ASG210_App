@@ -1,0 +1,11 @@
+{
+  "SchemaVersion": 1,
+  "Name": "GPIO_HLApp_mt3620_BareMetal",
+  "ComponentId": "dc7f135c-6074-4d49-aa3a-160e4eed884f",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [],
+  "Capabilities": {
+    "Gpio": [ "$USI_MT3620_BT_COMBO_PIN55_GPIO13", "$USI_MT3620_BT_COMBO_PIN28_GPIO41" ]
+  }, 
+  "ApplicationType": "Default"
+}
