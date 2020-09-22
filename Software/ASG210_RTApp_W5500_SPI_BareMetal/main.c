@@ -434,6 +434,21 @@ void mbox_tcp_server(uint8_t sn, uint8_t* sock_buf, uint16_t port)
     }
 }
 
+void w5500_init() {
+    // W5500 reset
+    gpio_output(gpio_w5500_reset, OS_HAL_GPIO_DATA_HIGH);
+
+    // W5500 ready check
+    os_hal_gpio_data w5500_ready;
+    gpio_input(gpio_w5500_ready, &w5500_ready);
+
+    while (1) {
+        if (w5500_ready) break;
+    }
+
+    osai_delay_ms(50);
+}
+
 _Noreturn void RTCoreMain(void)
 {
     u32 i = 0;
@@ -452,15 +467,8 @@ _Noreturn void RTCoreMain(void)
     printf("W5500_RTApp_MT3620_BareMetal\r\n");
     printf("App built on: " __DATE__ " " __TIME__ "\r\n");
 
-    // W5500 reset
-    gpio_output(gpio_w5500_reset, OS_HAL_GPIO_DATA_HIGH);
-
-    // W5500 ready check
-    os_hal_gpio_data w5500_ready;
-    gpio_input(gpio_w5500_ready, &w5500_ready);
-
-    while (!w5500_ready);
-
+    /* Init W5500 */
+    w5500_init();
 
     InitPrivateNetInfo();
 // #define TEST_AX1
