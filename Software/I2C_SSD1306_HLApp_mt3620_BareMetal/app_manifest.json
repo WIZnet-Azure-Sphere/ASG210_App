@@ -1,0 +1,12 @@
+{
+  "SchemaVersion": 1,
+  "Name" : "I2C_SSD1306_HLApp_mt3620_BareMetal",
+  "ComponentId" : "685f13af-25a5-40b2-8dd8-8cbc253ecbd8",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [],
+  "Capabilities": {
+    "Gpio": [ "$USI_MT3620_BT_COMBO_PIN55_GPIO13", "$USI_MT3620_BT_COMBO_PIN63_GPIO6", "$USI_MT3620_BT_COMBO_PIN65_GPIO4"],
+    "I2cMaster": [ "$USI_MT3620_BT_COMBO_ISU3_I2C" ]
+  },
+  "ApplicationType": "Default"
+}
