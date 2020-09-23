@@ -1,4 +1,4 @@
-# Sample: GPIO (High-level app)
+# Sample: GPIO_HLApp_mt3620_BareMetal (High-level app)
 
 This application does the following:
 
@@ -9,7 +9,8 @@ The sample uses the following Azure Sphere libraries.
 
 | Library | Purpose |
 |---------|---------|
-| [GPIO](https://docs.microsoft.com/azure-sphere/reference/applibs-reference/applibs-gpio/gpio-overview) | Manages button A and LED 1 on the device |
+| [GPIO](https://docs.microsoft.com/azure-sphere/reference/applibs-reference/applibs-gpio/gpio-overview) | Manages user button and LED 1 on the device |
+| TIMER | Manages Poll of input user button |
 | [log](https://docs.microsoft.com/azure-sphere/reference/applibs-reference/applibs-log/log-overview) | Displays messages in the Visual Studio Device Output window during debugging |
 | [EventLoop](https://docs.microsoft.com/azure-sphere/reference/applibs-reference/applibs-eventloop/eventloop-overview) | Invoke handlers for timer events |
 
@@ -17,7 +18,7 @@ The sample uses the following Azure Sphere libraries.
 
 | File/folder | Description |
 |-------------|-------------|
-| GPIO_HighLevelApp       |Sample source code and VS project files |
+| GPIO_HLApp_mt3620_BareMetal       |Sample source code and VS project files |
 | README.md | This readme file |
 
 ## Prerequisites
@@ -44,7 +45,7 @@ The application can be run and developed with Visual Studio and Visual Studio Co
 
 Follow these steps to build and run the application with Visual Studio:
 
-1. Start Visual Studio, From the File menu, select Open > Folder… and navigate to the folder, `ASG210_HLApp_AzureIoT`.
+1. Start Visual Studio, From the File menu, select Open > Folder… and navigate to the folder, `GPIO_HLApp_mt3620_BareMetal`.
 
 2. Open app_manifest.json file and check the information correct.
 
@@ -64,7 +65,7 @@ Follow these steps to build and run the application with Visual Studio:
 
 Follow these steps to build and run the application with Visual Studio Code:
 
-1. Open `ASG210_HLApp_AzureIoT` folder.
+1. Open `GPIO_HLApp_mt3620_BareMetal` folder.
 
 ![Visual Studio Code - Open Project Folder](../../Docs/references/visual-studio-code-open-project-folder.png)
 
@@ -76,7 +77,7 @@ Follow these steps to build and run the application with Visual Studio Code:
 
  LED1 AZURE on the WIZnet ASG210 begins blinking.
 
- Press button A repeatedly to cycle through the 3 possible blink rates.
+ Press user button repeatedly to cycle through the 3 possible blink rates.
 
 You will need the component ID to stop or start the application. To get the component ID, enter the command `azsphere device app show-status`. Azure Sphere will return the component ID (a GUID) and the current state (running, stopped, or debugging) of the application.
 
