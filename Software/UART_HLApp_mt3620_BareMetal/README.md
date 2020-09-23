@@ -1,11 +1,11 @@
-# Sample: UART (high-level app)
+# Sample: UART_HLApp_mt3620_BareMetal (high-level app)
 
 This sample demonstrates how to communicate over UART on a WIZnet ASG210.
 
 This sample does the following:
 
 - Opens a UART serial port with a baud rate of 115200.
-- Sends characters from the device over the UART when button A is pressed.
+- Sends characters from the device over the UART when user button is pressed.
 - Displays the data received from the UART in the Output Window of Visual Studio or Visual Studio Code.
 - Sends the data received from the UART back to the UART.
 
@@ -14,20 +14,16 @@ This sample uses these Applibs APIs:
 | Library | Purpose |
 |---------|---------|
 | [UART](https://docs.microsoft.com/azure-sphere/reference/applibs-reference/applibs-uart/uart-overview) | Manages UART connectivity on the device |
-| [GPIO](https://docs.microsoft.com/azure-sphere/reference/applibs-reference/applibs-gpio/gpio-overview) | Manages button A on the device |
+| [GPIO](https://docs.microsoft.com/azure-sphere/reference/applibs-reference/applibs-gpio/gpio-overview) | Manages user button on the device |
+| TIMER | Manages Poll of input user button |
 | [log](https://docs.microsoft.com/azure-sphere/reference/applibs-reference/applibs-log/log-overview) | Displays messages in the Visual Studio Device Output window during debugging |
 | [EventLoop](https://docs.microsoft.com/azure-sphere/reference/applibs-reference/applibs-eventloop/eventloop-overview) | Invoke handlers for IO and timer events |
 
 ## Contents
 | File/folder | Description |
 |-------------|-------------|
-|   main.c    | Sample source file. |
-| app_manifest.json |Sample manifest file. |
-| CMakeLists.txt | Contains the project information and produces the build. |
-| CMakeSettings.json| Configures CMake with the correct command-line options. |
-|launch.vs.json |Describes how to deploy and debug the application.|
-| README.md | This readme file. |
-|.vscode |Contains settings.json that configures Visual Studio Code to use CMake with the correct options, and tells it how to deploy and debug the application. |
+| UART_HLApp_mt3620_BareMetal       |Sample source code and VS project files |
+| README.md | This readme file |
 
 ## Prerequisites
 
@@ -57,7 +53,7 @@ The application can be run and developed with Visual Studio and Visual Studio Co
 
 Follow these steps to build and run the application with Visual Studio:
 
-1. Start Visual Studio, From the File menu, select Open > Folder… and navigate to the folder, `ASG210_HLApp_AzureIoT`.
+1. Start Visual Studio, From the File menu, select Open > Folder… and navigate to the folder, `UART_HLApp_mt3620_BareMetal`.
 
 2. Open app_manifest.json file and check the information correct.
 
@@ -77,7 +73,7 @@ Follow these steps to build and run the application with Visual Studio:
 
 Follow these steps to build and run the application with Visual Studio Code:
 
-1. Open `ASG210_HLApp_AzureIoT` folder.
+1. Open `UART_HLApp_mt3620_BareMetal` folder.
 
 ![Visual Studio Code - Open Project Folder](../../Docs/references/visual-studio-code-open-project-folder.png)
 
@@ -87,7 +83,7 @@ Follow these steps to build and run the application with Visual Studio Code:
 
 ### Test the sample
 
-1. Press button A on the board. This sends 13 bytes over the UART connection and displays the sent and received text in the Device Output window, if you're using Visual Studio or Visual Studio Code:
+1. Press user button on the board. This sends 13 bytes over the UART connection and displays the sent and received text in the Device Output window, if you're using Visual Studio or Visual Studio Code:
 
    `Sent 13 bytes over UART in 1 calls`  
    `UART received 12 bytes: 'Hello world!'`  
@@ -97,8 +93,4 @@ Follow these steps to build and run the application with Visual Studio Code:
    Sends the data received from the UART back to the UART.
 
    All the received text might not appear at once, and it might not appear immediately. 
-
-   The message may contain more bytes than read() can return, depending on the Azure Sphere device (on the MT3620 this is often 12 bytes). The message may need to be assmbled asynchronously over a sequence of read() calls as a result, as illustrated at [this point](https://github.com/Azure/azure-sphere-samples/blob/7232fcb52a493b7def65c50ea93ab9bb73e283c2/Samples/WifiSetupAndDeviceControlViaBle/AzureSphereApp/WifiSetupAndDeviceControlViaBle/message_protocol.c#L214) in the WifiSetupAndDeviceControlViaBle sample.
-
-   If it is temporarily not possible to send further bytes, such as when transmitting larger buffers, write() may fail with errno of EAGAIN. You can handle this by registering an EPOLLOUT event handler, as illustrated at [this point](https://github.com/Azure/azure-sphere-samples/blob/7232fcb52a493b7def65c50ea93ab9bb73e283c2/Samples/WifiSetupAndDeviceControlViaBle/AzureSphereApp/WifiSetupAndDeviceControlViaBle/message_protocol.c#L276) in the WifiSetupAndDeviceControlViaBle sample.
 
