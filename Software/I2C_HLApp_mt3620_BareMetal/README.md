@@ -1,6 +1,6 @@
 ## Sample: I2C_LSM6DS3_HighLevelApp
 
-This sample C application demonstrates how to use [I2C with Azure Sphere](https://docs.microsoft.com/azure-sphere/app-development/i2c) in a high-level application. By the input of user switch, the sample starts sending 10 character data and receives 10 character data, through I2C (Inter-Integrated Circuit).
+This sample C application demonstrates how to use [I2C with Azure Sphere](https://docs.microsoft.com/azure-sphere/app-development/i2c) in a high-level application. By the input of user button, the sample starts sending 10 character data and receives 10 character data, through I2C (Inter-Integrated Circuit).
 
 [Applibs I2C APIs](https://docs.microsoft.com/azure-sphere/reference/applibs-reference/applibs-i2c/i2c-overview)
 [Log_Debug](https://docs.microsoft.com/azure-sphere/reference/applibs-reference/applibs-log/function-log-debug).
@@ -12,10 +12,9 @@ The sample uses the following Azure Sphere libraries:
 |Library   |Purpose  |
 |---------|---------|
 |log     |  Displays messages in the Visual Studio Device Output window during debugging  |
-|i2c    | Manages I2C interfaces |
-|gpio    | Manages Port of I2C SDA |
-|gpio    | Manages Port of input user switch|
-|timer    | Manages Poll of input user switch |
+|I2C   | Manages I2C interfaces |
+|GPIO    | Manages user button and Port of I2C SDA |
+|TIMER    | Manages Poll of input user button |
 | [eventloop](https://docs.microsoft.com/azure-sphere/reference/applibs-reference/applibs-eventloop/eventloop-overview) | Invoke handlers for timer events |
 
 ## Prerequisites
@@ -76,7 +75,7 @@ Follow these steps to build and run the application with Visual Studio Code:
 
 ## Observe the output
 
- Press user switch to send 10 character data to other device and receives 10 character data from other device which has I2C with slave address 8. The other device should receive 10 character data from master and sends 10 character data to master.
+ Press user button to send 10 character data to other device and receives 10 character data from other device which has I2C with slave address 8. The other device should receive 10 character data from master and sends 10 character data to master.
 
 You will need the component ID to stop or start the application. To get the component ID, enter the command `azsphere device app show-status`. Azure Sphere will return the component ID (a GUID) and the current state (running, stopped, or debugging) of the application.
 
