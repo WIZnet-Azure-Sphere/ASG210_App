@@ -438,6 +438,8 @@ void w5500_init() {
     // W5500 reset
     gpio_output(gpio_w5500_reset, OS_HAL_GPIO_DATA_HIGH);
 
+    osai_delay_ms(150);
+
     // W5500 ready check
     os_hal_gpio_data w5500_ready;
     gpio_input(gpio_w5500_ready, &w5500_ready);
@@ -445,8 +447,6 @@ void w5500_init() {
     while (1) {
         if (w5500_ready) break;
     }
-
-    osai_delay_ms(50);
 }
 
 _Noreturn void RTCoreMain(void)
