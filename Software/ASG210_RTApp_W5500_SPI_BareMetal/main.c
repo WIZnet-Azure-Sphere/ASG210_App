@@ -140,16 +140,36 @@ uint8_t spim_rx_buf[SPIM_FULL_DUPLEX_MAX_LEN];
 #endif
 static volatile int g_async_done_flag;
 
-// Default Static Network Configuration for TCP Server 
-#if 0
-// wiz_NetInfo gWIZNETINFO = { {0x00, 0x08, 0xdc, 0xff, 0xfa, 0xfb},
-//                            {192, 168, 50, 10},
-//                            {255, 255, 255, 0},
-//                            {192, 168, 50, 1},
-//                            {8, 8, 8, 8},
-//                            NETINFO_STATIC };
+#define NETINFO_USE_MANUAL
+#ifndef NETINFO_USE_MANUAL
+#define NETINFO_USE_DHCP
+#endif
+
+#ifdef NETINFO_USE_MANUAL
+// Default Static Network Configuration for TCP Server
+wiz_NetInfo gWIZNETINFO = {
+        {0x00, 0x08, 0xdc, 0xff, 0xfa, 0xfb},
+        {192, 168, 50, 1},
+        {255, 255, 255, 0},
+        {192, 168, 50, 1},
+        {8, 8, 8, 8},
+        NETINFO_STATIC
+    };
+
 #else
-wiz_NetInfo gWIZNETINFO = {};
+// Network Configuration, it sets by the TinyMCU
+wiz_NetInfo gWIZNETINFO = {
+        {0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0},
+        {0, 0, 0, 0},
+        {0, 0, 0, 0},
+        {0, 0, 0, 0},
+        #ifdef NETINFO_USE_DHCP
+        NETINFO_DHCP
+        #else
+        NETINFO_STATIC
+        #endif
+    };
 #endif
 
 #define USE_READ_SYSRAM
@@ -231,34 +251,50 @@ static int gpio_input(u8 gpio_no, os_hal_gpio_data *pvalue)
 }
 
 // check w5500 network setting
-void InitPrivateNetInfo(void) {
-    uint8_t tmpstr[6];
-    uint8_t i = 0;
-    ctlwizchip(CW_GET_ID, (void*)tmpstr);
+void InitPrivateNetInfo(void)
+{
+	uint8_t tmpstr[6];
+	uint8_t i = 0;
+	ctlwizchip(CW_GET_ID, (void *)tmpstr);
 
-    // if (ctlnetwork(CN_SET_NETINFO, (void*)&gWIZNETINFO) < 0) {
-    //     printf("ERROR: ctlnetwork SET\r\n");
-    // }
-    memset((void*)&gWIZNETINFO, 0, sizeof(gWIZNETINFO));
+#ifdef NETINFO_USE_MANUAL
+	if (ctlnetwork(CN_SET_NETINFO, (void *)&gWIZNETINFO) < 0) {
+		printf("ERROR: ctlnetwork SET\r\n");
+		while(1);
+	}
 
-    ctlnetwork(CN_GET_NETINFO, (void*)&gWIZNETINFO);
+	wiz_NetInfo netinfo_temp;
 
-    printf("\r\n=== %s NET CONF ===\r\n", (char*)tmpstr);
-    printf("MAC: %02x:%02x:%02x:%02x:%02x:%02x\r\n", gWIZNETINFO.mac[0], gWIZNETINFO.mac[1], gWIZNETINFO.mac[2],
-        gWIZNETINFO.mac[3], gWIZNETINFO.mac[4], gWIZNETINFO.mac[5]);
+	memset((void *)&netinfo_temp, 0, sizeof(netinfo_temp));
+	ctlnetwork(CN_GET_NETINFO, (void *)&netinfo_temp);
 
-    printf("SIP: %d.%d.%d.%d\r\n", gWIZNETINFO.ip[0], gWIZNETINFO.ip[1], gWIZNETINFO.ip[2], gWIZNETINFO.ip[3]);
-    printf("GAR: %d.%d.%d.%d\r\n", gWIZNETINFO.gw[0], gWIZNETINFO.gw[1], gWIZNETINFO.gw[2], gWIZNETINFO.gw[3]);
-    printf("SUB: %d.%d.%d.%d\r\n", gWIZNETINFO.sn[0], gWIZNETINFO.sn[1], gWIZNETINFO.sn[2], gWIZNETINFO.sn[3]);
-    printf("DNS: %d.%d.%d.%d\r\n", gWIZNETINFO.dns[0], gWIZNETINFO.dns[1], gWIZNETINFO.dns[2], gWIZNETINFO.dns[3]);
-    printf("======================\r\n");
+	if(memcmp((void *)&netinfo_temp, (void *)&gWIZNETINFO, sizeof(netinfo_temp)))
+	{
+		printf("ERROR: NETINFO not matched\r\n");
+		while(1);
+	}
 
-    // socket 0-7 closed
-    for (i = 0; i < 8; i++)
-    {
-        setSn_CR(i, 0x10);
-    }
-    printf("Socket 0-7 Closed \r\n");
+#else
+	ctlnetwork(CN_GET_NETINFO, (void *)&gWIZNETINFO);
+#endif
+
+	printf("\r\n=== %s NET CONF ===\r\n", (char *)tmpstr);
+	printf("MAC: %02x:%02x:%02x:%02x:%02x:%02x\r\n", gWIZNETINFO.mac[0], gWIZNETINFO.mac[1], gWIZNETINFO.mac[2],
+		gWIZNETINFO.mac[3], gWIZNETINFO.mac[4], gWIZNETINFO.mac[5]);
+
+	printf("SIP: %d.%d.%d.%d\r\n", gWIZNETINFO.ip[0], gWIZNETINFO.ip[1], gWIZNETINFO.ip[2], gWIZNETINFO.ip[3]);
+	printf("GAR: %d.%d.%d.%d\r\n", gWIZNETINFO.gw[0], gWIZNETINFO.gw[1], gWIZNETINFO.gw[2], gWIZNETINFO.gw[3]);
+	printf("SUB: %d.%d.%d.%d\r\n", gWIZNETINFO.sn[0], gWIZNETINFO.sn[1], gWIZNETINFO.sn[2], gWIZNETINFO.sn[3]);
+	printf("DNS: %d.%d.%d.%d\r\n", gWIZNETINFO.dns[0], gWIZNETINFO.dns[1], gWIZNETINFO.dns[2], gWIZNETINFO.dns[3]);
+	printf("======================\r\n");
+
+	// socket 0-7 closed
+	// lawrence
+	for (i = 0; i < 8; i++)
+	{
+		setSn_CR(i, 0x10);
+	}
+	printf("Socket 0-7 Closed \r\n");
 }
 
 
@@ -435,10 +471,13 @@ void mbox_tcp_server(uint8_t sn, uint8_t* sock_buf, uint16_t port)
 }
 
 void w5500_init() {
+    
     // W5500 reset
+    gpio_output(gpio_w5500_reset, OS_HAL_GPIO_DATA_LOW);
+    osai_delay_ms(1);
+    
     gpio_output(gpio_w5500_reset, OS_HAL_GPIO_DATA_HIGH);
-
-    osai_delay_ms(150);
+    osai_delay_ms(1);
 
     // W5500 ready check
     os_hal_gpio_data w5500_ready;
@@ -447,6 +486,11 @@ void w5500_init() {
     while (1) {
         if (w5500_ready) break;
     }
+
+    osai_delay_ms(100);
+
+    wizchip_setnetinfo_partial(&gWIZNETINFO);
+    printf("Network Configuration from TinyMCU\r\n");
 }
 
 _Noreturn void RTCoreMain(void)
