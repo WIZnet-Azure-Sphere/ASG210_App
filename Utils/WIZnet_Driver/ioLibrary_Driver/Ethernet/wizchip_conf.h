@@ -610,6 +610,17 @@ intr_kind wizchip_getinterruptmask(void);
    int8_t wizphy_setphypmode(uint8_t pmode);    
 #endif
 
+#if 1
+// 20201013 taylor
+// For TinyMCU
+/**
+* @ingroup extra_functions
+ * @brief Set the network partial information for WIZCHIP
+ * @param pnetinfo : @ref wizNetInfo
+ */
+void wizchip_setnetinfo_partial(wiz_NetInfo* pnetinfo);
+#endif
+
 /**
 * @ingroup extra_functions
  * @brief Set the network information for WIZCHIP
