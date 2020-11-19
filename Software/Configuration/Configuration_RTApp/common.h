@@ -109,7 +109,13 @@ typedef enum {ERROR = 0, SUCCESS = !ERROR} ErrorStatus;
 // 20201028 taylor
 // deviceHandler.h
 /* Application Port */
+#if 1
+// 20201119 taylor
+// ASG
+#define DEVICE_SEGCP_PORT			52000	// Search / Setting Port (UDP Broadcast / TCP unicast)
+#else
 #define DEVICE_SEGCP_PORT			50001	// Search / Setting Port (UDP Broadcast / TCP unicast)
+#endif
 #define DEVICE_FWUP_PORT			50002	// Firmware Update Port
 #define DEVICE_DDNS_PORT			3030	// Not 	used
 
