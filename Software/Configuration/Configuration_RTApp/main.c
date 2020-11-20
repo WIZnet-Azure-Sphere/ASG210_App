@@ -179,7 +179,7 @@ void _putchar(char character)
 /******************************************************************************/
 static int gpio_output(u8 gpio_no, u8 level)
 {
-#if 1
+#if 0
     // MediaTek-Labs/mt3620_m4_software release_200520
     int ret;
 
@@ -209,7 +209,7 @@ static int gpio_output(u8 gpio_no, u8 level)
 
 static int gpio_input(u8 gpio_no, os_hal_gpio_data* pvalue)
 {
-#if 1
+#if 0
     // MediaTek-Labs/mt3620_m4_software release_200520
     u8 ret;
 

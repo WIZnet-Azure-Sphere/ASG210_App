@@ -15,6 +15,8 @@ azsphere_configure_tools(TOOLS_REVISION "20.07")
 
 add_compile_definitions(OSAI_BARE_METAL)
 add_compile_definitions(OSAI_ENABLE_DMA)
+# When place CODE_REGION in FLASH instead of TCM, please enable this definition:
+# add_compile_definitions(M4_ENABLE_XIP_FLASH)
 add_link_options(-specs=nano.specs -specs=nosys.specs)
 
 # Executable

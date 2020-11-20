@@ -213,41 +213,61 @@ void _putchar(char character)
 /******************************************************************************/
 static int gpio_output(u8 gpio_no, u8 level)
 {
-	int ret;
+#if 0
+    // MediaTek-Labs/mt3620_m4_software release_200520
+    int ret;
 
-	ret = mtk_os_hal_gpio_request(gpio_no);
-	if (ret != 0) {
-		printf("request gpio[%d] fail\n", gpio_no);
-		return ret;
-	}
+    ret = mtk_os_hal_gpio_request(gpio_no);
+    if (ret != 0)
+    {
+        printf("request gpio[%d] fail\n", gpio_no);
+        return ret;
+    }
 
-	mtk_os_hal_gpio_set_direction(gpio_no, OS_HAL_GPIO_DIR_OUTPUT);
-	mtk_os_hal_gpio_set_output(gpio_no, level);
-	ret = mtk_os_hal_gpio_free(gpio_no);
-	if (ret != 0) {
-		printf("free gpio[%d] fail\n", gpio_no);
-		return 0;
-	}
-	return 0;
+    mtk_os_hal_gpio_set_direction(gpio_no, OS_HAL_GPIO_DIR_OUTPUT);
+    mtk_os_hal_gpio_set_output(gpio_no, level);
+    ret = mtk_os_hal_gpio_free(gpio_no);
+    if (ret != 0)
+    {
+        printf("free gpio[%d] fail\n", gpio_no);
+        return 0;
+    }
+    return 0;
+#else
+    // MediaTek-Labs/mt3620_m4_software release_201106
+    mtk_os_hal_gpio_set_direction(gpio_no, OS_HAL_GPIO_DIR_OUTPUT);
+    mtk_os_hal_gpio_set_output(gpio_no, level);
+    return 0;
+#endif
 }
 
-static int gpio_input(u8 gpio_no, os_hal_gpio_data *pvalue)
+static int gpio_input(u8 gpio_no, os_hal_gpio_data* pvalue)
 {
-	u8 ret;
+#if 0
+    // MediaTek-Labs/mt3620_m4_software release_200520
+    u8 ret;
 
-	ret = mtk_os_hal_gpio_request(gpio_no);
-	if (ret != 0) {
-		printf("request gpio[%d] fail\n", gpio_no);
-		return ret;
-	}
-	mtk_os_hal_gpio_set_direction(gpio_no, OS_HAL_GPIO_DIR_INPUT);
-	mtk_os_hal_gpio_get_input(gpio_no, pvalue);
-	ret = mtk_os_hal_gpio_free(gpio_no);
-	if (ret != 0) {
-		printf("free gpio[%d] fail\n", gpio_no);
-		return ret;
-	}
-	return 0;
+    ret = mtk_os_hal_gpio_request(gpio_no);
+    if (ret != 0)
+    {
+        printf("request gpio[%d] fail\n", gpio_no);
+        return ret;
+    }
+    mtk_os_hal_gpio_set_direction(gpio_no, OS_HAL_GPIO_DIR_INPUT);
+    mtk_os_hal_gpio_get_input(gpio_no, pvalue);
+    ret = mtk_os_hal_gpio_free(gpio_no);
+    if (ret != 0)
+    {
+        printf("free gpio[%d] fail\n", gpio_no);
+        return ret;
+    }
+    return 0;
+#else
+    // MediaTek-Labs/mt3620_m4_software release_201106
+    mtk_os_hal_gpio_set_direction(gpio_no, OS_HAL_GPIO_DIR_INPUT);
+    mtk_os_hal_gpio_get_input(gpio_no, pvalue);
+    return 0;
+#endif
 }
 
 // check w5500 network setting
@@ -491,6 +511,7 @@ void w5500_init() {
 
     wizchip_setnetinfo_partial(&gWIZNETINFO);
     printf("Network Configuration from TinyMCU\r\n");
+    InitPrivateNetInfo();
 }
 
 _Noreturn void RTCoreMain(void)
@@ -514,7 +535,6 @@ _Noreturn void RTCoreMain(void)
     /* Init W5500 */
     w5500_init();
 
-    InitPrivateNetInfo();
 // #define TEST_AX1
     dhcps_init(2, gDATABUF);
 #ifndef TEST_AX1
