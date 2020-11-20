@@ -551,6 +551,10 @@ _Noreturn void RTCoreMain(void)
     /* Init W5500 */
     w5500_init();
 
+#ifdef NETINFO_USE_DHCP
+#error W5500_RTApp_MT3620_BareMetal not support DHCP Client
+#endif
+
 // #define TEST_AX1
     dhcps_init(2, gDATABUF);
 #ifndef TEST_AX1
