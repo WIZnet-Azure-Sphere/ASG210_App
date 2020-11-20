@@ -91,7 +91,8 @@ extern uint32_t timestamp;
 ///     When sending a message, this is the recipient HLApp's component ID.
 ///     When receiving a message, this is the sender HLApp's component ID.
 /// </summary>
-typedef struct {
+typedef struct
+{
     /// <summary>4-byte little-endian word</summary>
     uint32_t data1;
     /// <summary>2-byte little-endian half</summary>
@@ -108,9 +109,10 @@ static uint8_t mbox_recv_buf[MBOX_BUFFER_LEN_MAX];
 
 // 819255ff-8640-41fd-aea7-f85d34c491d5
 static const ComponentId hlAppId = { .data1 = 0x819255ff,
-                                    .data2 = 0x8640,
-                                    .data3 = 0x41fd,
-                                    .data4 = {0xae, 0xa7, 0xf8, 0x5d, 0x34, 0xc4, 0x91, 0xd5} };
+                                     .data2 = 0x8640,
+                                     .data3 = 0x41fd,
+                                     .data4 = {0xae, 0xa7, 0xf8, 0x5d, 0x34, 0xc4, 0x91, 0xd5}
+                                   };
 
 /* Bitmap for IRQ enable. bit_0 and bit_1 are used to communicate with HL_APP */
 static const uint32_t mbox_irq_status = 0x3;
@@ -120,7 +122,8 @@ static const uint32_t mbox_irq_status = 0x3;
 /****************************************************************************/
 /* Global Variables */
 /****************************************************************************/
-struct mtk_spi_config spi_default_config = {
+struct mtk_spi_config spi_default_config =
+{
     .cpol = SPIM_CLOCK_POLARITY,
     .cpha = SPIM_CLOCK_PHASE,
     .rx_mlsb = SPIM_RX_MLSB,
@@ -147,29 +150,31 @@ static volatile int g_async_done_flag;
 
 #ifdef NETINFO_USE_MANUAL
 // Default Static Network Configuration for TCP Server
-wiz_NetInfo gWIZNETINFO = {
-        {0x00, 0x08, 0xdc, 0xff, 0xfa, 0xfb},
-        {192, 168, 50, 1},
-        {255, 255, 255, 0},
-        {192, 168, 50, 1},
-        {8, 8, 8, 8},
-        NETINFO_STATIC
-    };
+wiz_NetInfo gWIZNETINFO =
+{
+    {0x00, 0x08, 0xdc, 0xff, 0xfa, 0xfb},
+    {192, 168, 50, 1},
+    {255, 255, 255, 0},
+    {192, 168, 50, 1},
+    {8, 8, 8, 8},
+    NETINFO_STATIC
+};
 
 #else
 // Network Configuration, it sets by the TinyMCU
-wiz_NetInfo gWIZNETINFO = {
-        {0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0},
-        {0, 0, 0, 0},
-        {0, 0, 0, 0},
-        {0, 0, 0, 0},
-        #ifdef NETINFO_USE_DHCP
-        NETINFO_DHCP
-        #else
-        NETINFO_STATIC
-        #endif
-    };
+wiz_NetInfo gWIZNETINFO =
+{
+    {0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0},
+    {0, 0, 0, 0},
+    {0, 0, 0, 0},
+    {0, 0, 0, 0},
+#ifdef NETINFO_USE_DHCP
+    NETINFO_DHCP
+#else
+    NETINFO_STATIC
+#endif
+};
 #endif
 
 #define USE_READ_SYSRAM
@@ -203,9 +208,9 @@ static const uint8_t gpio_w5500_ready = OS_HAL_GPIO_15;
 /* Hook for "printf". */
 void _putchar(char character)
 {
-	mtk_os_hal_uart_put_char(uart_port_num, character);
-	if (character == '\n')
-		mtk_os_hal_uart_put_char(uart_port_num, '\r');
+    mtk_os_hal_uart_put_char(uart_port_num, character);
+    if (character == '\n')
+        mtk_os_hal_uart_put_char(uart_port_num, '\r');
 }
 
 /******************************************************************************/
@@ -213,88 +218,109 @@ void _putchar(char character)
 /******************************************************************************/
 static int gpio_output(u8 gpio_no, u8 level)
 {
-	int ret;
+#if 0
+    // MediaTek-Labs/mt3620_m4_software release_200520
+    int ret;
 
-	ret = mtk_os_hal_gpio_request(gpio_no);
-	if (ret != 0) {
-		printf("request gpio[%d] fail\n", gpio_no);
-		return ret;
-	}
+    ret = mtk_os_hal_gpio_request(gpio_no);
+    if (ret != 0)
+    {
+        printf("request gpio[%d] fail\n", gpio_no);
+        return ret;
+    }
 
-	mtk_os_hal_gpio_set_direction(gpio_no, OS_HAL_GPIO_DIR_OUTPUT);
-	mtk_os_hal_gpio_set_output(gpio_no, level);
-	ret = mtk_os_hal_gpio_free(gpio_no);
-	if (ret != 0) {
-		printf("free gpio[%d] fail\n", gpio_no);
-		return 0;
-	}
-	return 0;
+    mtk_os_hal_gpio_set_direction(gpio_no, OS_HAL_GPIO_DIR_OUTPUT);
+    mtk_os_hal_gpio_set_output(gpio_no, level);
+    ret = mtk_os_hal_gpio_free(gpio_no);
+    if (ret != 0)
+    {
+        printf("free gpio[%d] fail\n", gpio_no);
+        return 0;
+    }
+    return 0;
+#else
+    // MediaTek-Labs/mt3620_m4_software release_201106
+    mtk_os_hal_gpio_set_direction(gpio_no, OS_HAL_GPIO_DIR_OUTPUT);
+    mtk_os_hal_gpio_set_output(gpio_no, level);
+    return 0;
+#endif
 }
 
-static int gpio_input(u8 gpio_no, os_hal_gpio_data *pvalue)
+static int gpio_input(u8 gpio_no, os_hal_gpio_data* pvalue)
 {
-	u8 ret;
+#if 0
+    // MediaTek-Labs/mt3620_m4_software release_200520
+    u8 ret;
 
-	ret = mtk_os_hal_gpio_request(gpio_no);
-	if (ret != 0) {
-		printf("request gpio[%d] fail\n", gpio_no);
-		return ret;
-	}
-	mtk_os_hal_gpio_set_direction(gpio_no, OS_HAL_GPIO_DIR_INPUT);
-	mtk_os_hal_gpio_get_input(gpio_no, pvalue);
-	ret = mtk_os_hal_gpio_free(gpio_no);
-	if (ret != 0) {
-		printf("free gpio[%d] fail\n", gpio_no);
-		return ret;
-	}
-	return 0;
+    ret = mtk_os_hal_gpio_request(gpio_no);
+    if (ret != 0)
+    {
+        printf("request gpio[%d] fail\n", gpio_no);
+        return ret;
+    }
+    mtk_os_hal_gpio_set_direction(gpio_no, OS_HAL_GPIO_DIR_INPUT);
+    mtk_os_hal_gpio_get_input(gpio_no, pvalue);
+    ret = mtk_os_hal_gpio_free(gpio_no);
+    if (ret != 0)
+    {
+        printf("free gpio[%d] fail\n", gpio_no);
+        return ret;
+    }
+    return 0;
+#else
+    // MediaTek-Labs/mt3620_m4_software release_201106
+    mtk_os_hal_gpio_set_direction(gpio_no, OS_HAL_GPIO_DIR_INPUT);
+    mtk_os_hal_gpio_get_input(gpio_no, pvalue);
+    return 0;
+#endif
 }
 
 // check w5500 network setting
 void InitPrivateNetInfo(void)
 {
-	uint8_t tmpstr[6];
-	uint8_t i = 0;
-	ctlwizchip(CW_GET_ID, (void *)tmpstr);
+    uint8_t tmpstr[6];
+    uint8_t i = 0;
+    ctlwizchip(CW_GET_ID, (void *)tmpstr);
 
 #ifdef NETINFO_USE_MANUAL
-	if (ctlnetwork(CN_SET_NETINFO, (void *)&gWIZNETINFO) < 0) {
-		printf("ERROR: ctlnetwork SET\r\n");
-		while(1);
-	}
+    if (ctlnetwork(CN_SET_NETINFO, (void *)&gWIZNETINFO) < 0)
+    {
+        printf("ERROR: ctlnetwork SET\r\n");
+        while(1);
+    }
 
-	wiz_NetInfo netinfo_temp;
+    wiz_NetInfo netinfo_temp;
 
-	memset((void *)&netinfo_temp, 0, sizeof(netinfo_temp));
-	ctlnetwork(CN_GET_NETINFO, (void *)&netinfo_temp);
+    memset((void *)&netinfo_temp, 0, sizeof(netinfo_temp));
+    ctlnetwork(CN_GET_NETINFO, (void *)&netinfo_temp);
 
-	if(memcmp((void *)&netinfo_temp, (void *)&gWIZNETINFO, sizeof(netinfo_temp)))
-	{
-		printf("ERROR: NETINFO not matched\r\n");
-		while(1);
-	}
+    if(memcmp((void *)&netinfo_temp, (void *)&gWIZNETINFO, sizeof(netinfo_temp)))
+    {
+        printf("ERROR: NETINFO not matched\r\n");
+        while(1);
+    }
 
 #else
-	ctlnetwork(CN_GET_NETINFO, (void *)&gWIZNETINFO);
+    ctlnetwork(CN_GET_NETINFO, (void *)&gWIZNETINFO);
 #endif
 
-	printf("\r\n=== %s NET CONF ===\r\n", (char *)tmpstr);
-	printf("MAC: %02x:%02x:%02x:%02x:%02x:%02x\r\n", gWIZNETINFO.mac[0], gWIZNETINFO.mac[1], gWIZNETINFO.mac[2],
-		gWIZNETINFO.mac[3], gWIZNETINFO.mac[4], gWIZNETINFO.mac[5]);
+    printf("\r\n=== %s NET CONF ===\r\n", (char *)tmpstr);
+    printf("MAC: %02x:%02x:%02x:%02x:%02x:%02x\r\n", gWIZNETINFO.mac[0], gWIZNETINFO.mac[1], gWIZNETINFO.mac[2],
+           gWIZNETINFO.mac[3], gWIZNETINFO.mac[4], gWIZNETINFO.mac[5]);
 
-	printf("SIP: %d.%d.%d.%d\r\n", gWIZNETINFO.ip[0], gWIZNETINFO.ip[1], gWIZNETINFO.ip[2], gWIZNETINFO.ip[3]);
-	printf("GAR: %d.%d.%d.%d\r\n", gWIZNETINFO.gw[0], gWIZNETINFO.gw[1], gWIZNETINFO.gw[2], gWIZNETINFO.gw[3]);
-	printf("SUB: %d.%d.%d.%d\r\n", gWIZNETINFO.sn[0], gWIZNETINFO.sn[1], gWIZNETINFO.sn[2], gWIZNETINFO.sn[3]);
-	printf("DNS: %d.%d.%d.%d\r\n", gWIZNETINFO.dns[0], gWIZNETINFO.dns[1], gWIZNETINFO.dns[2], gWIZNETINFO.dns[3]);
-	printf("======================\r\n");
+    printf("SIP: %d.%d.%d.%d\r\n", gWIZNETINFO.ip[0], gWIZNETINFO.ip[1], gWIZNETINFO.ip[2], gWIZNETINFO.ip[3]);
+    printf("GAR: %d.%d.%d.%d\r\n", gWIZNETINFO.gw[0], gWIZNETINFO.gw[1], gWIZNETINFO.gw[2], gWIZNETINFO.gw[3]);
+    printf("SUB: %d.%d.%d.%d\r\n", gWIZNETINFO.sn[0], gWIZNETINFO.sn[1], gWIZNETINFO.sn[2], gWIZNETINFO.sn[3]);
+    printf("DNS: %d.%d.%d.%d\r\n", gWIZNETINFO.dns[0], gWIZNETINFO.dns[1], gWIZNETINFO.dns[2], gWIZNETINFO.dns[3]);
+    printf("======================\r\n");
 
-	// socket 0-7 closed
-	// lawrence
-	for (i = 0; i < 8; i++)
-	{
-		setSn_CR(i, 0x10);
-	}
-	printf("Socket 0-7 Closed \r\n");
+    // socket 0-7 closed
+    // lawrence
+    for (i = 0; i < 8; i++)
+    {
+        setSn_CR(i, 0x10);
+    }
+    printf("Socket 0-7 Closed \r\n");
 }
 
 
@@ -308,12 +334,14 @@ void InitPrivateNetInfo(void)
 */
 void mbox_fifo_cb(struct mtk_os_hal_mbox_cb_data *data)
 {
-	if (data->event.channel == OS_HAL_MBOX_CH0) {
-		/* A7 core write data to mailbox fifo. */
-		if (data->event.wr_int) {
-			blockFifoSema++;
-		}
-	}
+    if (data->event.channel == OS_HAL_MBOX_CH0)
+    {
+        /* A7 core write data to mailbox fifo. */
+        if (data->event.wr_int)
+        {
+            blockFifoSema++;
+        }
+    }
 }
 
 /* SW Interrupt handler.
@@ -329,25 +357,27 @@ void mbox_fifo_cb(struct mtk_os_hal_mbox_cb_data *data)
 */
 void mbox_swint_cb(struct mtk_os_hal_mbox_cb_data *data)
 {
-	if (data->swint.channel == OS_HAL_MBOX_CH0) {
-		if (data->swint.swint_sts & (1 << 1)) {
-			blockDeqSema++;
-		}
-	}
+    if (data->swint.channel == OS_HAL_MBOX_CH0)
+    {
+        if (data->swint.swint_sts & (1 << 1))
+        {
+            blockDeqSema++;
+        }
+    }
 }
 
 void mbox_get_payload(u8 *mbox_buf, u32 mbox_data_len)
 {
     uint8_t* timebuf;
 #if 0
-	u32 payload_len;
+    u32 payload_len;
     payload_len = mbox_data_len - pay_load_start_offset;
 
-	/* Print message as text. */
-	printf("  Payload (%d bytes as text): ", payload_len);
-	for (i = pay_load_start_offset; i < mbox_data_len; ++i)
-		printf("%c", mbox_buf[i]);
-	printf("\n");
+    /* Print message as text. */
+    printf("  Payload (%d bytes as text): ", payload_len);
+    for (i = pay_load_start_offset; i < mbox_data_len; ++i)
+        printf("%c", mbox_buf[i]);
+    printf("\n");
 #endif
 
     timebuf = &mbox_buf[pay_load_start_offset];
@@ -357,50 +387,52 @@ void mbox_get_payload(u8 *mbox_buf, u32 mbox_data_len)
 
 void mbox_init(void)
 {
-	struct mbox_fifo_event mask;
+    struct mbox_fifo_event mask;
 
-	/* Init buffer */
-	memset(mbox_send_buf, 0, MBOX_BUFFER_LEN_MAX);
+    /* Init buffer */
+    memset(mbox_send_buf, 0, MBOX_BUFFER_LEN_MAX);
 
     /* Open the MBOX channel of A7 <-> M4 */
-	mtk_os_hal_mbox_open_channel(OS_HAL_MBOX_CH0);
+    mtk_os_hal_mbox_open_channel(OS_HAL_MBOX_CH0);
 
-	blockDeqSema = 0;
-	blockFifoSema = 0;
+    blockDeqSema = 0;
+    blockFifoSema = 0;
 
-	/* Register interrupt callback */
-	mask.channel = OS_HAL_MBOX_CH0;
-	mask.ne_sts = 0;	/* FIFO Non-Empty interrupt */
-	mask.nf_sts = 0;	/* FIFO Non-Full interrupt */
-	mask.rd_int = 0;	/* Read FIFO interrupt */
-	mask.wr_int = 1;	/* Write FIFO interrupt */
-	mtk_os_hal_mbox_fifo_register_cb(OS_HAL_MBOX_CH0, mbox_fifo_cb, &mask);
-	mtk_os_hal_mbox_sw_int_register_cb(OS_HAL_MBOX_CH0, mbox_swint_cb, mbox_irq_status);
+    /* Register interrupt callback */
+    mask.channel = OS_HAL_MBOX_CH0;
+    mask.ne_sts = 0;	/* FIFO Non-Empty interrupt */
+    mask.nf_sts = 0;	/* FIFO Non-Full interrupt */
+    mask.rd_int = 0;	/* Read FIFO interrupt */
+    mask.wr_int = 1;	/* Write FIFO interrupt */
+    mtk_os_hal_mbox_fifo_register_cb(OS_HAL_MBOX_CH0, mbox_fifo_cb, &mask);
+    mtk_os_hal_mbox_sw_int_register_cb(OS_HAL_MBOX_CH0, mbox_swint_cb, mbox_irq_status);
 
-	/* Get mailbox shared buffer size, defined by Azure Sphere OS. */
-	if (GetIntercoreBuffers(&outbound, &inbound, &mbox_shared_buf_size) == -1) {
-		printf("GetIntercoreBuffers failed\n");
-		return;
-	}
-	printf("Mbox shared buf size = %d\n", mbox_shared_buf_size);
-	// printf("Mbox local buf size = %d\n", MBOX_BUFFER_LEN_MAX);
+    /* Get mailbox shared buffer size, defined by Azure Sphere OS. */
+    if (GetIntercoreBuffers(&outbound, &inbound, &mbox_shared_buf_size) == -1)
+    {
+        printf("GetIntercoreBuffers failed\n");
+        return;
+    }
+    printf("Mbox shared buf size = %d\n", mbox_shared_buf_size);
+    // printf("Mbox local buf size = %d\n", MBOX_BUFFER_LEN_MAX);
 
-	memcpy((void*)&mbox_send_buf, (void*)&hlAppId, sizeof(hlAppId));
+    memcpy((void*)&mbox_send_buf, (void*)&hlAppId, sizeof(hlAppId));
 }
 
 void mbox_send_data_a7(uint8_t* sock_data, uint32_t datasize)
 {
     uint32_t size;
-	int result;
+    int result;
 
     memcpy((void*)&mbox_send_buf[pay_load_start_offset], sock_data, datasize);
     size = pay_load_start_offset + datasize;
 
     /* Write to A7, enqueue to mailbox */
-	result = EnqueueData(inbound, outbound, mbox_shared_buf_size, mbox_send_buf, size);
-	if (result == -1) {
-		printf("Mailbox enqueue failed!\n");
-	}
+    result = EnqueueData(inbound, outbound, mbox_shared_buf_size, mbox_send_buf, size);
+    if (result == -1)
+    {
+        printf("Mailbox enqueue failed!\n");
+    }
 }
 
 void mbox_receive_data(void)
@@ -412,7 +444,8 @@ void mbox_receive_data(void)
 
     /* Read from A7, dequeue from mailbox */
     result = DequeueData(outbound, inbound, mbox_shared_buf_size, mbox_recv_buf, &buf_len);
-    if (result == -1 || buf_len < pay_load_start_offset) {
+    if (result == -1 || buf_len < pay_load_start_offset)
+    {
         printf("Mailbox dequeue failed!\n");
     }
     mbox_get_payload(mbox_recv_buf, buf_len);
@@ -423,7 +456,8 @@ void mbox_tcp_server(uint8_t sn, uint8_t* sock_buf, uint16_t port)
     int32_t ret;
     uint16_t size = 0;
 
-	for (int i = 0; i < DATA_BUF_SIZE; i++) {
+    for (int i = 0; i < DATA_BUF_SIZE; i++)
+    {
         sock_buf[i] = NULL;
     }
 
@@ -447,7 +481,7 @@ void mbox_tcp_server(uint8_t sn, uint8_t* sock_buf, uint16_t port)
             printf("Received data from socket %d : (%d) %s\r\n", sn, size, sock_buf);
 
             // Send data to a7 core
-			mbox_send_data_a7(sock_buf, size);
+            mbox_send_data_a7(sock_buf, size);
         }
         break;
     case SOCK_CLOSE_WAIT:
@@ -470,12 +504,13 @@ void mbox_tcp_server(uint8_t sn, uint8_t* sock_buf, uint16_t port)
     }
 }
 
-void w5500_init() {
-    
+void w5500_init()
+{
+
     // W5500 reset
     gpio_output(gpio_w5500_reset, OS_HAL_GPIO_DATA_LOW);
     osai_delay_ms(1);
-    
+
     gpio_output(gpio_w5500_reset, OS_HAL_GPIO_DATA_HIGH);
     osai_delay_ms(1);
 
@@ -483,7 +518,8 @@ void w5500_init() {
     os_hal_gpio_data w5500_ready;
     gpio_input(gpio_w5500_ready, &w5500_ready);
 
-    while (1) {
+    while (1)
+    {
         if (w5500_ready) break;
     }
 
@@ -491,12 +527,13 @@ void w5500_init() {
 
     wizchip_setnetinfo_partial(&gWIZNETINFO);
     printf("Network Configuration from TinyMCU\r\n");
+    InitPrivateNetInfo();
 }
 
 _Noreturn void RTCoreMain(void)
 {
     u32 i = 0;
-    
+
     /* Init Vector Table */
     NVIC_SetupVectorTable();
 
@@ -514,7 +551,10 @@ _Noreturn void RTCoreMain(void)
     /* Init W5500 */
     w5500_init();
 
-    InitPrivateNetInfo();
+#ifdef NETINFO_USE_DHCP
+#error W5500_RTApp_MT3620_BareMetal not support DHCP Client
+#endif
+
 // #define TEST_AX1
     dhcps_init(2, gDATABUF);
 #ifndef TEST_AX1
@@ -528,24 +568,25 @@ _Noreturn void RTCoreMain(void)
     printf("gsntpDATABUF = %#x\r\n", gsntpDATABUF);
 #endif
 
-	mbox_init();
+    mbox_init();
 
 #if 0
-	for (;;) 
-		__asm__("wfi");
+    for (;;)
+        __asm__("wfi");
 #else
     while (1)
     {
         dhcps_run();
-        
+
 #ifndef TEST_AX1
         SNTPs_run();
 #endif
         // loopback_tcps(0, s0_Buf, 50000);
         loopback_tcps(1, s1_Buf, 50001);
 
-		mbox_tcp_server(0, s0_Buf, 5000);
-        if (blockDeqSema != 0) {
+        mbox_tcp_server(0, s0_Buf, 5000);
+        if (blockDeqSema != 0)
+        {
             mbox_receive_data();
             blockDeqSema--;
         }
@@ -554,8 +595,8 @@ _Noreturn void RTCoreMain(void)
         i++;
         if(i > 10000)
         {
-          timestamp++;
-          i = 0;
+            timestamp++;
+            i = 0;
         }
 #endif
     }
