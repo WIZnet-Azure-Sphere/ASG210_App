@@ -1,0 +1,12 @@
+{
+  "SchemaVersion": 1,
+  "Name": "Configuration_RTApp",
+  "ComponentId": "281F22B9-199E-4F47-A571-5976615BFFBE",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [],
+  "Capabilities": {
+    "SpiMaster": ["ISU1"],
+    "Gpio": [ 12, 15 ]
+  },
+  "ApplicationType": "RealTimeCapable"
+}

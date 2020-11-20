@@ -844,6 +844,18 @@ int8_t wizphy_setphypmode(uint8_t pmode)
 }
 #endif
 
+#if 1
+// 20201013 taylor
+// For TinyMCU
+void wizchip_setnetinfo_partial(wiz_NetInfo* pnetinfo)
+{
+   _DNS_[0] = pnetinfo->dns[0];
+   _DNS_[1] = pnetinfo->dns[1];
+   _DNS_[2] = pnetinfo->dns[2];
+   _DNS_[3] = pnetinfo->dns[3];
+   _DHCP_   = pnetinfo->dhcp;
+}
+#endif
 
 void wizchip_setnetinfo(wiz_NetInfo* pnetinfo)
 {
