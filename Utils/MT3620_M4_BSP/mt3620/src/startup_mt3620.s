@@ -33,47 +33,30 @@
  * MEDIATEK SOFTWARE AT ISSUE.
  */
 
-/**
- * @file cirq_common.h
- *
- *
- *
- */
+    .syntax unified
+    .arch armv7-m
 
+    .text
+    .thumb
+    .thumb_func
+    .section .text
+    .align 2
+    .globl    Reset_Handler
+    .type    Reset_Handler, %function
 
-#ifndef __CIRQ_COMMON_H__
-#define __CIRQ_COMMON_H__
+Reset_Handler:
+    ldr    r2, =__bss_start__
+    ldr    r3, =__bss_end__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+.bss_clean_loop:
+    cmp     r2, r3
+    ittt    lt
+    movlt   r0, #0
+    strlt   r0, [r2], #4
+    blt    .bss_clean_loop
 
-#ifdef M4SC_ENABLE
-#define ENABLE_GPIO_IRQ_EDGE2LEVEL
-#endif
-
-struct gpio_irq_hsp2ca7 {
-    const unsigned int  vector_id;
-    const unsigned int  ca7_mapping_id;
-};
-
-int cirq_gpio_irq_ctl_set_level(uint32_t vector);
-int cirq_gpio_irq_ctl_set_edge(uint32_t vector);
-int cirq_gpio_irq_ctl_set_edge2lvl(uint32_t vector);
-int cirq_gpio_irq_ctl_clr_edge2lvl(uint32_t vector);
-int cirq_gpio_irq_ctl_ack_edge2lvl(uint32_t vector);
-int cirq_irq_test_set_trigger(uint32_t cpu, uint32_t vector);
-int cirq_irq_test_clr_trigger(uint32_t cpu, uint32_t vector);
-int cirq_irq_dis_set_trigger(uint32_t cpu, uint32_t vector);
-int cirq_irq_dis_clr_trigger(uint32_t cpu, uint32_t vector);
-int cirq_irq_ctl_set_level(uint32_t vector);
-int cirq_irq_ctl_set_edge(uint32_t vector);
-int cirq_cm4_wic_enable(uint32_t vector);
-int cirq_cm4_wic_disable(uint32_t vector);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* __CIRQ_COMMON_H__ */
+    ldr    r0, =RTCoreMain
+    bx    r0
+    .pool
+    .size Reset_Handler, . - Reset_Handler
 
