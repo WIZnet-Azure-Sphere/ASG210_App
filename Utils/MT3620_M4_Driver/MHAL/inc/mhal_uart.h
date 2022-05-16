@@ -89,7 +89,7 @@
  *
  * - \b The \b OS-HAL \b FreeRTOS \b driver\n
  * \b sample \b code \b is \b as \b follows: \n
- * <a href="https://github.com/MediaTek-Labs/mt3620_m4_software/blob/master/MT3620_M4_Sample_Code/FreeRTOS/OS_HAL/src/os_hal_uart.c"> freeRTos UART sample code on github </a>
+ * <a href="https://github.com/MediaTek-Labs/mt3620_m4_software/blob/master/MT3620_M4_Sample_Code/OS_HAL/src/os_hal_uart.c"> freeRTos UART sample code on github </a>
  *
  * @}
  * @}
@@ -340,6 +340,10 @@ int mtk_mhal_uart_sw_reset(struct mtk_uart_controller *ctlr);
  * Return "0" if dump UART register success.\n
  * Return -#UART_EPTR if ctlr is NULL.
  */
+// 20210310 taylor
+#if 1
+u32 mtk_mhal_uart_readreg(struct mtk_uart_controller* ctlr, u32 reg);
+#endif
 int mtk_mhal_uart_dumpreg(struct mtk_uart_controller *ctlr);
 
 /**

@@ -1,0 +1,58 @@
+{
+    "Metadata":
+    {
+        "Type": "Azure Sphere Hardware Definition",
+        "Version": 1
+    },
+    "Description":
+    {
+        "Name": "WIZNET Azure Sphere Guardian 210 (ASG210) V1.2",
+        "MainCoreHeaderFileTopContent": [
+            "/* Copyright (c) Microsoft Corporation. All rights reserved.",
+            "   Licensed under the MIT License. */",
+            "",
+            "// This header contains the peripheral pinout definitions for the",
+            "// WIZNET Azure Sphere Guardian 210 (ASG210) V1.2"
+        ]
+    },
+    "Imports" : [ {"Path": "../usi_mt3620_bt/usi_mt3620_bt.json"} ],
+    "Peripherals": [
+        {"Name": "WIZNET_ASG210_STATUS_LED1_AZURE", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN28_GPIO41", "Comment": "AZURE Connection status LED uses GPIO4."},
+        {"Name": "WIZNET_ASG210_STATUS_LED2_WIFI", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN27_GPIO42", "Comment": "WiFi Connection status LED uses GPIO4."},
+        {"Name": "WIZNET_ASG210_STATUS_LED3_ETHERNET", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN26_GPIO43", "Comment": "WLAN Connection status LED uses GPIO4."},
+        {"Name": "WIZNET_ASG210_STATUS_LED4_INTERFACE", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN25_GPIO44", "Comment": "Interface Connection status LED uses GPIO4."},
+        {"Name": "WIZNET_ASG210_STATUS_LED6_BLUETOOTH", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN24_GPIO45", "Comment": "BLE Connection status LED uses GPIO4."},
+
+        {"Name": "WIZNET_ASG210_GPIO0_J5_2", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN69_GPIO0", "Comment": " GPIO0."},
+        {"Name": "WIZNET_ASG210_GPIO1_J5_3", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN68_GPIO1", "Comment": " GPIO1."},
+        {"Name": "WIZNET_ASG210_GPIO2_J5_4", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN67_GPIO2", "Comment": " GPIO2."},
+        {"Name": "WIZNET_ASG210_GPIO3_J5_5", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN66_GPIO3", "Comment": " GPIO3."},
+
+        {"Name": "WIZNET_ASG210_USER_BUTTON_SW2", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN55_GPIO13", "Comment": "User Button uses GPIO13."},
+
+        {"Name": "WIZNET_ASG210_ISU3_I2C", "Type": "I2cMaster", "Mapping": "USI_MT3620_BT_COMBO_ISU3_I2C", "Comment": "ISU 3 configured as I2C,  pin 89 (SDA) and pin 90 (SCL)."},
+        {"Name": "WIZNET_ASG210_ISU3_UART", "Type": "Uart", "Mapping": "USI_MT3620_BT_COMBO_ISU3_UART", "Comment": "ISU 3 configured as UART, pin 89 (RX), pin 91 (TX), pin 87 (CTS), pin 90 (RTS)."},
+
+        {"Name": "WIZNET_ASG210_ISU3_NSDA_RXD_SEL", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN61_GPIO8", "Comment": "S0 Select ISU3 nSDA/RXD."},
+
+        {"Name": "WIZNET_ASG210_ISU3_N422_485_SEL", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN60_GPIO9", "Comment": "Select n422/485."},
+        {"Name": "WIZNET_ASG210_ISU3_N232_485_SEL", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN59_GPIO10", "Comment": "Select n232/485."},
+        {"Name": "WIZNET_ASG210_ISU3_485_DE", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN88_GPIO70", "Comment": "DE 485/422 Tx Enable."},
+        
+        {"Name": "WIZNET_ASG210_ENC_SPI", "Type": "SpiMaster", "Mapping": "USI_MT3620_BT_COMBO_ISU0_SPI", "Comment": "ENC ISU 0 configured as SPI, pin 45 (MISO), pin 47 (SCLK), pin 43 (CSB), pin 44 (CSA), and pin 46 (MOSI)."},
+        {"Name": "WIZNET_ASG210_ENC_SPI_CS", "Type": "int", "Mapping": "USI_MT3620_BT_COMBO_PIN44_GPIO29", "Comment": "ENC SPI Chip Select (CS) value \"A\". This is not a peripheral identifier, and so has no meaning in an app manifest."},
+        {"Name": "WIZNET_ASG210_ENC_RESET", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN54_GPIO14", "Comment": "Reset ENC."},
+        
+        {"Name": "WIZNET_ASG210_W5500_SPI", "Type": "SpiMaster", "Mapping": "USI_MT3620_BT_COMBO_ISU1_SPI", "Comment": "W5500 ISU 1 configured as SPI, pin 40 (MISO), pin 42 (SCLK), pin 39 (CSA), pin 41 (MOSI) and pin 38 (CSB)."},
+        {"Name": "WIZNET_ASG210_W5500_SPI_CS", "Type": "int", "Mapping": "USI_MT3620_BT_COMBO_PIN38_GPIO35", "Comment": "SD SPI Chip Select (CS) value \"B\". This is not a peripheral identifier, and so has no meaning in an app manifest."},
+        {"Name": "WIZNET_ASG210_W5500_RESET", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN94_GPIO58", "Comment": "Reset W5500."},
+        {"Name": "WIZNET_ASG210_W5500_INTN", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN3_GPIO57", "Comment": "W5500_INTn."},
+        {"Name": "WIZNET_ASG210_W5500_NRDY", "Type": "Gpio", "Mapping": "USI_MT3620_BT_COMBO_PIN1_GPIO56", "Comment": "nRDY."},
+        
+        {"Name": "WIZNET_ASG210_SD_SPI", "Type": "SpiMaster", "Mapping": "USI_MT3620_BT_COMBO_ISU2_SPI", "Comment": "SD ISU 2 configured as SPI, pin 35 (MISO), pin 37 (SCLK), pin 34 (CSA), pin 36 (MOSI) and pin 33 (CSB)."},
+        {"Name": "WIZNET_ASG210_SD_SPI_CS", "Type": "int", "Mapping": "USI_MT3620_BT_COMBO_PIN34_GPIO39", "Comment": "SD SPI Chip Select (CS) value \"A\". This is not a peripheral identifier, and so has no meaning in an app manifest."},
+
+        {"Name": "WIZNET_ASG210_SD_UART", "Type": "Uart", "Mapping": "USI_MT3620_BT_COMBO_ISU2_UART", "Comment": "ISU 2 configured as UART, pin 37 (RX), pin 35 (TX), pin 34 (CTS), pin 36 (RTS)."},
+        {"Name": "WIZNET_ASG210_SD_UART_RST", "Type": "int", "Mapping": "USI_MT3620_BT_COMBO_PIN93_GPIO60", "Comment": "SD UART RST value \"A\". This is not a peripheral identifier, and so has no meaning in an app manifest."},
+    ]
+}

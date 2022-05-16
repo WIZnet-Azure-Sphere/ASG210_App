@@ -33,4 +33,4 @@ ADD_SUBDIRECTORY(../MT3620_M4_BSP/FreeRTOS ./MT3620_M4_BSP/FreeRTOS)
 TARGET_LINK_LIBRARIES(MT3620_M4_Driver PUBLIC MT3620_M4_FreeRTOS)
 endif()
 TARGET_INCLUDE_DIRECTORIES(MT3620_M4_Driver PUBLIC
-                           ../../Software/OS_HAL/inc)
+                           ../OS_HAL/inc)

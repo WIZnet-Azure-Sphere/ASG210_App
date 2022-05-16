@@ -147,6 +147,11 @@ extern "C" {
 void mtk_hdl_uart_cg_config(void __iomem *uart_cg_base, bool enable_clk);
 void mtk_hdl_uart_reset(void __iomem *uart_cg_base);
 
+// 20210310 taylor
+#if 1
+u32 mtk_hdl_uart_readreg(void __iomem* uart_base, u32 reg);
+#endif
+
 void mtk_hdl_uart_dmreg(void __iomem *uart_base);
 void mtk_hdl_uart_init(void __iomem *uart_base);
 

@@ -1,12 +1,17 @@
 #ifndef _DHCPS_H_
 #define _DHCPS_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define IS_USE_FIXED_IP	0
 #define debug_dhcps 0
 #if (debug_dhcps)
 #define DEBUG_UNMARK_IP_IN_TABLE
 #define DEBUG_DHCPS_CHECK_MSG_AND_HANDLE_OPTIONS
 #define DEBUG_SEARCH_MAC
+#define DEBUG_MARK_IP_IN_TABLE
 
 #endif
 
@@ -17,6 +22,8 @@
 #define DHCP_SERVER_STATE_NAK 				(4)
 #define DHCP_SERVER_STATE_IDLE 				(5)
 #define DHCP_SERVER_STATE_RELEASE 		(6)
+#define DHCP_SERVER_STATE_RENEWAL 		(7)
+
 
 
 
@@ -96,12 +103,28 @@ typedef struct dhcps_msg_t
 
 /* use this to check whether the message is dhcp related or not */
 static const uint8_t dhcp_magic_cookie[4] = {99, 130, 83, 99};
+#if 0
+// For Test
+#if 0
+// 30 seconds
+static const uint8_t dhcp_option_lease_time_one_day[] = {0x00, 0x00, 0x00, 0x0A}; 
+#else
+// 1 minutes
+static const uint8_t dhcp_option_lease_time_one_day[] = {0x00, 0x00, 0x00, 0x3C}; 
+#endif
+#else
+// 24 hours
 static const uint8_t dhcp_option_lease_time_one_day[] = {0x00, 0x01, 0x51, 0x80}; 
+#endif
 static const uint8_t dhcp_option_interface_mtu_576[] = {0x02, 0x40};
 
 struct table {
 	uint32_t ip_range[4];
   uint8_t chaddr[128][16];	/* Client hardware address */
+#if 1
+	// 20200605
+  uint8_t cltime[128][4];	/* Client leased time */
+#endif
 };
 
 struct address_pool{
@@ -131,6 +154,19 @@ void dhcps_set_addr_pool(int addr_pool_set, ip_addr * addr_pool_start, ip_addr *
 void dhcps_init(uint8_t s, uint8_t * buf);
 static uint8_t search_mac();
 uint8_t dhcps_run(void);
+#if 1
+// 20201028 taylor
+void check_leased_time_over();
+#endif
+/*
+ * @brief DHCP 1s Tick Timer handler
+ * @note SHOULD BE register to your system 1s Tick timer handler 
+ */
+void dhcps_time_handler(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

@@ -148,6 +148,10 @@ int EnqueueData(BufferHeader *inbound, BufferHeader *outbound,
 	 */
 	if (availSpace < sizeof(u32) + dataSize + RINGBUFFER_ALIGNMENT) {
 		printf("EnqueueData: not enough space to enqueue block\r\n");
+// 20201228 taylor
+#if 0
+        printf("availSpace = %d\r\n", availSpace);
+#endif
 		return -1;
 	}
 
@@ -250,6 +254,13 @@ int DequeueData(BufferHeader *outbound, BufferHeader *inbound,
 	 *to hold the message.
 	 */
 	if (blockSize > *dataSize) {
+        #if 0
+        // 20201124 taylor
+        // debug
+        
+        printf("blockSize = 0x%x(%d)\r\n", blockSize, blockSize);
+        printf("*dataSize = 0x%x(%d)\r\n", *dataSize, *dataSize);
+        #endif
 		printf("DequeueData: message too large for buffer\r\n");
 		*dataSize = blockSize;
 		return -1;

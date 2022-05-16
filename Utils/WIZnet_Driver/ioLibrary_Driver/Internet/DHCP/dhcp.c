@@ -53,7 +53,13 @@
 #include "../../Ethernet/socket.h"
 
 #include "dhcp.h"
+
+#ifdef W5500_WITH_A7
+#include <applibs/log.h>
+#define printf Log_Debug
+#else
 #include "printf.h"
+#endif
 
 /* If you want to display debug & processing message, Define _DHCP_DEBUG_ in dhcp.h */
 
@@ -599,9 +605,9 @@ int8_t parseDHCPMSG(void)
    if((len = getSn_RX_RSR(DHCP_SOCKET)) > 0)
    {
    	len = sock_recvfrom(DHCP_SOCKET, (uint8_t *)pDHCPMSG, len, svr_addr, &svr_port);
-   #ifdef _DHCP_DEBUG_   
-      printf("DHCP message : %d.%d.%d.%d(%d) %d received. \r\n",svr_addr[0],svr_addr[1],svr_addr[2], svr_addr[3],svr_port, len);
-   #endif   
+   	#ifdef _DHCP_DEBUG_ 
+   	printf("DHCP message : %d.%d.%d.%d(%d) %d received. \r\n",svr_addr[0],svr_addr[1],svr_addr[2], svr_addr[3],svr_port, len);
+   	#endif   
    }
    else return 0;
 	if (svr_port == DHCP_SERVER_PORT) {
@@ -611,7 +617,7 @@ int8_t parseDHCPMSG(void)
 		     (pDHCPMSG->chaddr[4] != DHCP_CHADDR[4]) || (pDHCPMSG->chaddr[5] != DHCP_CHADDR[5])   )
 		{
 #ifdef _DHCP_DEBUG_
-            printf("No My DHCP Message. This message is ignored.\r\n");
+         printf("No My DHCP Message. This message is ignored.\r\n");
 #endif
          return 0;
 		}
@@ -678,7 +684,7 @@ int8_t parseDHCPMSG(void)
    				dhcp_lease_time  = (dhcp_lease_time << 8) + *p++;
    				dhcp_lease_time  = (dhcp_lease_time << 8) + *p++;
    				dhcp_lease_time  = (dhcp_lease_time << 8) + *p++;
-            #ifdef _DHCP_DEBUG_  
+            #if 0
                dhcp_lease_time = 10;
  				#endif
    				break;
@@ -730,7 +736,7 @@ uint8_t DHCP_run(void)
 		case STATE_DHCP_DISCOVER :
 			if (type == DHCP_OFFER){
 #ifdef _DHCP_DEBUG_
-				printf("> Receive DHCP_OFFER\r\n");
+            printf("> Receive DHCP_OFFER\r\n");
 #endif
             DHCP_allocated_ip[0] = pDHCPMSG->yiaddr[0];
             DHCP_allocated_ip[1] = pDHCPMSG->yiaddr[1];
@@ -808,7 +814,7 @@ uint8_t DHCP_run(void)
 					ret = DHCP_IP_CHANGED;
 					dhcp_ip_update();
                #ifdef _DHCP_DEBUG_
-                  printf(">IP changed.\r\n");
+					printf(">IP changed.\r\n");
                #endif
 					
 				}
@@ -966,10 +972,15 @@ void reset_DHCP_timeout(void)
 	dhcp_retry_count = 0;
 }
 
+#ifndef W5500_WITH_A7
 void DHCP_time_handler(void)
 {
 	dhcp_tick_1s++;
+#if 0
+	printf("dhcp_tick_1s = 0x%x\r\n", dhcp_tick_1s);
+#endif
 }
+#endif
 
 void getIPfromDHCP(uint8_t* ip)
 {

@@ -189,12 +189,24 @@ uint8_t gsntpDATABUF[DATA_BUF_SIZE];
 BufferHeader *outbound, *inbound;
 static uint32_t mbox_shared_buf_size;
 volatile u8  blockDeqSema;
-volatile u8  blockFifoSema;
+extern volatile u8  blockFifoSema;
 static const u32 pay_load_start_offset = 20; /* UUID 16B, Reserved 4B */
 
 /* GPIO */
+#if 1
+// 20220516 taylor
+// ASG210 V1.2
+static const uint8_t gpio_w5500_reset = OS_HAL_GPIO_58;
+static const uint8_t gpio_w5500_ready = OS_HAL_GPIO_56;
+static const uint8_t gpio_w5500_int = OS_HAL_GPIO_57;
+#else
 static const uint8_t gpio_w5500_reset = OS_HAL_GPIO_12;
-static const uint8_t gpio_w5500_ready = OS_HAL_GPIO_15;
+// ASG210 V1.1 Bug
+#if 0
+static const uint8_t gpio_w5500_ready = OS_HAL_GPIO_47;
+static const uint8_t gpio_w5500_int = OS_HAL_GPIO_48;
+#endif
+#endif
 
 
 /******************************************************************************/
@@ -479,13 +491,28 @@ void w5500_init() {
     gpio_output(gpio_w5500_reset, OS_HAL_GPIO_DATA_HIGH);
     osai_delay_ms(1);
 
+// 20210329
+// ASG210 V1.2
+// W5500 ready check
+    os_hal_gpio_data w5500_ready;
+    do
+    {
+        gpio_input(gpio_w5500_ready, &w5500_ready);
+    } while (!w5500_ready);
+
+// 20210222 taylor
+// Ignored ready check
+// ASG210 V1.1 Bug
+#if 0
     // W5500 ready check
     os_hal_gpio_data w5500_ready;
     gpio_input(gpio_w5500_ready, &w5500_ready);
 
-    while (1) {
+    while (1)
+    {
         if (w5500_ready) break;
     }
+#endif
 
     osai_delay_ms(100);
 

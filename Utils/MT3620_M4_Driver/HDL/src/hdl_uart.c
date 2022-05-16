@@ -59,6 +59,17 @@ void mtk_hdl_uart_reset(void __iomem *uart_cg_base)
 	osai_writel(reg_val | 0x00000001, uart_cg_base);
 }
 
+// 20210310 taylor
+#if 1
+u32 mtk_hdl_uart_readreg(void __iomem* uart_base, u32 reg)
+{
+	u32 i;
+
+	//uart_debug("addr: 0x%02x: %08X\r\n", uart_base + reg, osai_readl(uart_base + reg));
+	return osai_readl(uart_base + reg);
+}
+#endif
+
 void mtk_hdl_uart_dmreg(void __iomem *uart_base)
 {
 	u32 i;

@@ -65,6 +65,17 @@ int mtk_mhal_uart_sw_reset(struct mtk_uart_controller *ctlr)
 	return 0;
 }
 
+// 20210310 taylor
+#if 1
+u32 mtk_mhal_uart_readreg(struct mtk_uart_controller* ctlr, u32 reg)
+{
+	if (!ctlr)
+		return -UART_EPTR;
+
+	return mtk_hdl_uart_readreg(ctlr->base, reg);
+}
+#endif
+
 int mtk_mhal_uart_dumpreg(struct mtk_uart_controller *ctlr)
 {
 	if (!ctlr)

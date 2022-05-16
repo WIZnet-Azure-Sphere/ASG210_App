@@ -6,7 +6,12 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include "../../Ethernet/wizchip_conf.h"
 
+#ifdef W5500_WITH_A7
+// 20201015 taylor
+
+#else
 #if 1
 // 20200527 taylor
 #include "os_hal_uart.h"
@@ -14,6 +19,7 @@ extern "C" {
 // mt3620 peri - 20200513
 #include "../../../../lib/UART.h"
 #include "../../../../lib/Print.h"
+#endif
 #endif
 
 /* Loopback test debug message printout enable */

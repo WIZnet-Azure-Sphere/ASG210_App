@@ -62,9 +62,18 @@
 
 #include "w5500.h"
 #include "w5500-dbg.h"
+
+#ifdef W5500_WITH_A7
+// 20201015 taylor
+#include "../../applibs_versions.h"
+#include <applibs/log.h>
+#include <applibs/spi.h>
+#include <hw/wiznet_asg210_v1.2.h>
+#else
 #include "printf.h"
 
 #include "os_hal_spim.h"
+#endif
 
 #define _W5500_SPI_VDM_OP_ 0x00
 #define _W5500_SPI_FDM_OP_LEN1_ 0x01
@@ -74,13 +83,329 @@
 #if (_WIZCHIP_ == 5500)
 ////////////////////////////////////////////////////
 
+#ifdef W5500_WITH_A7
+// 20201015 taylor
+
+static int spiFd = -1;
+
+uint8_t Init_SPIMaster(void)
+{
+    SPIMaster_Config config;
+    int ret = SPIMaster_InitConfig(&config);
+    if (ret != 0)
+    {
+        Log_Debug("ERROR: SPIMaster_InitConfig = %d errno = %s (%d)\n", ret, strerror(errno),
+            errno);
+        return -1;
+    }
+
+    config.csPolarity = SPI_ChipSelectPolarity_ActiveLow;
+
+#if 0   // SPI_1 CS_A enable
+    spiFd = SPIMaster_Open(AVNET_MT3620_SK_ISU1_SPI, MT3620_SPI_CS_A, &config);
+#else   // SPI_1 CS_B enable
+    spiFd = SPIMaster_Open(WIZNET_ASG210_W5500_SPI, MT3620_SPI_CS_B, &config);
+#endif
+    Log_Debug("SPIMaster_Open() \n");
+    if (spiFd < 0)
+    {
+#if WIZNET_DBG
+        Log_Debug("ERROR: SPIMaster_Open: errno=%d (%s)\n", errno, strerror(errno));
+#endif
+        return -1;
+    }
+
+    int result = SPIMaster_SetBusSpeed(spiFd, 40*1000*1000); // 40 MHz
+    if (result != 0)
+    {
+#if WIZNET_DBG
+        Log_Debug("ERROR: SPIMaster_SetBusSpeed: errno=%d (%s)\n", errno, strerror(errno));
+#endif
+        return -1;
+    }
+
+#if 1   // SPI Mode_3 enable
+    result = SPIMaster_SetMode(spiFd, SPI_Mode_3);
+#else   // SPI Mode_0 enable
+    result = SPIMaster_SetMode(spiFd, SPI_Mode_0);
+#endif
+
+    if (result != 0)
+    {
+#if WIZNET_DBG
+        Log_Debug("ERROR: SPIMaster_SetMode: errno=%d (%s)\n", errno, strerror(errno));
+#endif
+        return -1;
+    }
+
+    return 0;
+}
+
+uint8_t WIZCHIP_READ(uint32_t AddrSel)
+{
+    static const size_t transferCount = 2;
+    SPIMaster_Transfer transfers[transferCount];
+    uint8_t ret;
+
+    if (SPIMaster_InitTransfers(transfers, transferCount) != 0)
+    {
+        Log_Debug("ERROR: SPIMaster_InitTransfers: errno=%d (%s)\n", errno, strerror(errno));
+        return -1;
+    }
+
+    AddrSel |= (_W5500_SPI_READ_ | _W5500_SPI_VDM_OP_);
+    uint8_t data[] = { (AddrSel & 0x00FF0000) >> 16, (AddrSel & 0x0000FF00) >> 8, (AddrSel & 0x000000FF) >> 0 };
+
+    transfers[0].flags = SPI_TransferFlags_Write;
+    transfers[0].writeData = data;
+    transfers[0].length = sizeof(data);
+
+    transfers[1].flags = SPI_TransferFlags_Read;
+    transfers[1].readData = &ret;
+    transfers[1].length = sizeof(ret);
+
+    ssize_t transferredBytes = SPIMaster_TransferSequential(spiFd, transfers, transferCount);
+
+    if (transferredBytes < 0)
+    {
+        Log_Debug("errno=%d (%s)\n", errno, strerror(errno));
+        return -1;
+    }
+
+    return ret;
+}
+
+void WIZCHIP_WRITE(uint32_t AddrSel, uint8_t wb)
+{
+    static const size_t transferCount = 1;
+    SPIMaster_Transfer transfers[transferCount];
+
+    if (SPIMaster_InitTransfers(transfers, transferCount) != 0)
+    {
+        Log_Debug("ERROR: SPIMaster_InitTransfers: errno=%d (%s)\n", errno, strerror(errno));
+        return -1;
+    }
+
+    AddrSel |= (_W5500_SPI_WRITE_ | _W5500_SPI_VDM_OP_);
+    uint8_t data[] = {
+        (AddrSel & 0x00FF0000) >> 16,
+        (AddrSel & 0x0000FF00) >> 8,
+        (AddrSel & 0x000000FF) >> 0,
+        wb,
+    };
+
+    transfers[0].flags = SPI_TransferFlags_Write;
+    transfers[0].writeData = data;
+    transfers[0].length = 4;
+
+    ssize_t transferredBytes = SPIMaster_TransferSequential(spiFd, transfers, transferCount);
+
+    if (transferredBytes < 0)
+    {
+        Log_Debug("errno=%d (%s)\n", errno, strerror(errno));
+        return -1;
+    }
+}
+
+
+void WIZCHIP_READ_BUF(uint32_t AddrSel, uint8_t* pBuf, uint16_t len)
+{
+    static const size_t transferCount = 2;
+    SPIMaster_Transfer transfers[transferCount];
+
+    if (SPIMaster_InitTransfers(transfers, transferCount) != 0)
+    {
+        Log_Debug("ERROR: SPIMaster_InitTransfers: errno=%d (%s)\n", errno, strerror(errno));
+        return -1;
+    }
+
+    AddrSel |= (_W5500_SPI_READ_ | _W5500_SPI_VDM_OP_);
+
+    uint8_t data[] = {
+            (AddrSel & 0x00FF0000) >> 16,
+            ((AddrSel & 0x0000FF00) >> 8),
+            (AddrSel & 0x000000FF) >> 0 };
+
+    ssize_t transferredBytes = SPIMaster_WriteThenRead(
+        spiFd, data, sizeof(data), pBuf, len);
+
+#if WIZNET_DBG  // SPI dump
+    printf("\n after Sphere Write XXXXXXXXXXXXXXXXXXXXXXXXXXX \n");
+    WDUMP(data, sizeof(data));
+    printf("\n after Sphere Read XXXXXXXXXXXXXXXXXXXXXXXXXXX \n");
+    WDUMP(pBuf, len);
+#endif
+
+}
+
+
+void WIZCHIP_WRITE_BUF(uint32_t AddrSel, uint8_t* pBuf, uint16_t len)
+{
+    uint16_t i;
+
+    static const size_t transferCount = 2;
+    SPIMaster_Transfer transfers[transferCount];
+
+    if (SPIMaster_InitTransfers(transfers, transferCount) != 0)
+    {
+        Log_Debug("ERROR: SPIMaster_InitTransfers: errno=%d (%s)\n", errno, strerror(errno));
+        return -1;
+    }
+
+#if 1
+    AddrSel |= (_W5500_SPI_WRITE_ | _W5500_SPI_VDM_OP_);
+#else
+    AddrSel |= (_W5500_SPI_WRITE_ | _W5500_SPI_FDM_OP_LEN1_);
+#endif
+
+#if 0
+    // 20201015 taylor
+
+    int ret;
+    uint8_t data[3];
+    uint8_t temp[4];
+    uint16_t addr;
+    uint32_t sent_byte = 0;
+
+    #define WBUF_SIZE_TEST 16
+
+    do
+    {
+        addr = ((AddrSel >> 8) + sent_byte) & 0xFFFF;
+        data[0] = (addr >> 8) & 0xff;
+        data[1] = (addr >> 0) & 0xff;
+        data[2] = AddrSel & 0xff;
+
+        xfer.opcode = (u32)(data[2] | data[1] << 8 | data[0] << 16) & 0xffffff;
+#ifdef DEBUG_WIZCHIP_WRITE_BUF
+        printf("xfer.opcode = #%x\r\n", (u32)(data[2] | data[1] << 8 | data[0] << 16) & 0xffffff);
+        printf("xfer.opcode = #%x\r\n", xfer.opcode);
+#endif
+        xfer.opcode_len = 3;
+
+#ifdef DEBUG_WIZCHIP_WRITE_BUF
+        printf("len = %d\r\n", len);
+#endif
+        if (len >= WBUF_SIZE_TEST)
+        {
+            xfer.len = WBUF_SIZE_TEST;
+            len -= WBUF_SIZE_TEST;
+        }
+        else
+        {
+            xfer.len = len;
+            len = 0;
+        }
+
+        xfer.tx_buf = pBuf + sent_byte;
+
+#if 1
+        transfers[0].flags = SPI_TransferFlags_Write;
+        transfers[0].writeData = data;
+        transfers[0].length = sizeof(data);
+        ssize_t transferredBytes = SPIMaster_TransferSequential(spiFd, transfers, transferCount);
+        if (transferredBytes < 0)
+        {
+            Log_Debug("errno=%d (%s)\n", errno, strerror(errno));
+            return -1;
+        }
+#else
+        ret = mtk_os_hal_spim_transfer((spim_num)spi_master_port_num, &spi_default_config, &xfer);
+        if (ret) {
+            printf("mtk_os_hal_spim_transfer failed\n");
+            return ret;
+        }
+#endif
+
+        sent_byte += WBUF_SIZE_TEST;
+
+    } while (len != 0);
+#else
+#if 1
+    uint8_t data[] = {
+            (AddrSel & 0x00FF0000) >> 16,
+            ((AddrSel & 0x0000FF00) >> 8),
+            (AddrSel & 0x000000FF) >> 0
+    };
+
+    transfers[0].flags = SPI_TransferFlags_Write;
+    transfers[0].writeData = data;
+    transfers[0].length = sizeof(data);
+
+    transfers[1].flags = SPI_TransferFlags_Write;
+    transfers[1].writeData = pBuf;
+    transfers[1].length = len;
+
+    ssize_t transferredBytes = SPIMaster_TransferSequential(spiFd, transfers, transferCount);
+    if (transferredBytes < 0)
+    {
+        Log_Debug("errno=%d (%s)\n", errno, strerror(errno));
+        return -1;
+    }
+
+#if 0
+    Log_Debug("transferredBytes %d\n", transferredBytes);
+#endif
+
+#if 0
+    transfers[1].flags = SPI_TransferFlags_Write;
+    transfers[1].writeData = pBuf;
+    transfers[1].length = len;
+
+    transferredBytes = SPIMaster_TransferSequential(spiFd, transfers, transferCount);
+    if (transferredBytes < 0)
+    {
+        Log_Debug("errno=%d (%s)\n", errno, strerror(errno));
+        return -1;
+    }
+#endif
+    
+#else
+    for (i = 0; i < len; i++)
+    {
+        uint8_t data[] = {
+            (AddrSel & 0x00FF0000) >> 16,
+            ((AddrSel & 0x0000FF00) >> 8) + i,
+            (AddrSel & 0x000000FF) >> 0,
+            pBuf[i] };
+
+        transfers[0].flags = SPI_TransferFlags_Write;
+        transfers[0].writeData = data;
+        transfers[0].length = sizeof(data);
+
+        ssize_t transferredBytes = SPIMaster_TransferSequential(spiFd, transfers, transferCount);
+
+        if (transferredBytes < 0)
+        {
+            Log_Debug("errno=%d (%s)\n", errno, strerror(errno));
+            return -1;
+        }
+    }
+#endif
+#endif
+}
+#else
 #define USE_VDM
 //#define USE_READ_DMA
 //#define USE_WRITE_DMA
+#define USE_ASYNC
+#define RBUF_SIZE_TEST 16
+#define WBUF_SIZE_TEST 16
 
 extern uint8_t spi_master_port_num;
 extern uint32_t spi_master_speed;
 extern struct mtk_spi_config spi_default_config;
+
+#ifdef USE_ASYNC
+// 20201105 taylor
+static volatile int g_async_done_flag;
+
+static int spi_xfer_complete(void *context)
+{
+	g_async_done_flag = 1;
+	return 0;
+}
+#endif
 
 uint8_t WIZCHIP_READ(uint32_t AddrSel)
 {
@@ -88,6 +413,12 @@ uint8_t WIZCHIP_READ(uint32_t AddrSel)
     int ret;
 
     uint8_t rb;
+
+//#define DEBUG_WIZCHIP_READ
+    
+#ifdef DEBUG_WIZCHIP_READ
+    printf("START DEBUG_WIZCHIP_READ\r\n");
+#endif
 
     #ifdef USE_VDM
     AddrSel |= (_W5500_SPI_READ_ | _W5500_SPI_VDM_OP_);
@@ -108,12 +439,28 @@ uint8_t WIZCHIP_READ(uint32_t AddrSel)
     xfer.opcode = (u32)(data[2] | data[1] << 8 | data[0] << 16) & 0xffffff;
     xfer.opcode_len = 3;
 
+    #ifdef USE_ASYNC
+    // 20201105 taylor
+    g_async_done_flag = 0;
+    ret = mtk_os_hal_spim_async_transfer((spim_num)spi_master_port_num,
+        &spi_default_config, &xfer, spi_xfer_complete, &xfer);
+    if (ret) {
+        printf("mtk_os_hal_spim_transfer failed\n");
+        return ret;
+    }
+    while(g_async_done_flag != 1);
+    #else
     ret = mtk_os_hal_spim_transfer((spim_num)spi_master_port_num,
         &spi_default_config, &xfer);
     if (ret) {
         printf("mtk_os_hal_spim_transfer failed\n");
         return ret;
     }
+    #endif
+
+#ifdef DEBUG_WIZCHIP_READ
+    printf("END DEBUG_WIZCHIP_READ\r\n");
+#endif
 
     return rb;
 }
@@ -122,6 +469,12 @@ void WIZCHIP_WRITE(uint32_t AddrSel, uint8_t wb)
 {
     struct mtk_spi_transfer xfer;
     int ret;
+
+//#define DEBUG_WIZCHIP_WRITE
+        
+#ifdef DEBUG_WIZCHIP_WRITE
+    printf("START DEBUG_WIZCHIP_WRITE\r\n");
+#endif
 
     #ifdef USE_VDM
     AddrSel |= (_W5500_SPI_WRITE_ | _W5500_SPI_VDM_OP_);
@@ -142,12 +495,29 @@ void WIZCHIP_WRITE(uint32_t AddrSel, uint8_t wb)
     xfer.opcode = (u32)(data[2] | data[1] << 8 | data[0] << 16) & 0xffffff;
     xfer.opcode_len = 3;
 
+    #ifdef USE_ASYNC
+    // 20201105 taylor
+    g_async_done_flag = 0;
+    ret = mtk_os_hal_spim_async_transfer((spim_num)spi_master_port_num,
+        &spi_default_config, &xfer, spi_xfer_complete, &xfer);
+    if (ret) {
+        printf("mtk_os_hal_spim_transfer failed\n");
+        return ret;
+    }
+    while(g_async_done_flag != 1);
+    #else
     ret = mtk_os_hal_spim_transfer((spim_num)spi_master_port_num,
         &spi_default_config, &xfer);
     if (ret) {
         printf("mtk_os_hal_spim_transfer failed\n");
         return ret;
     }
+    #endif
+
+#ifdef DEBUG_WIZCHIP_WRITE
+    printf("END DEBUG_WIZCHIP_WRITE\r\n");
+#endif
+
 }
 
 #ifdef USE_READ_DMA
@@ -175,8 +545,6 @@ void WIZCHIP_READ_BUF_DMA(uint32_t AddrSel, uint8_t* pBuf, uint16_t len)
     xfer.len = len;
     xfer.opcode = 0x5a;
     xfer.opcode_len = 3;
-
-#define RBUF_SIZE_TEST 16
 
     do
     {
@@ -241,6 +609,12 @@ void WIZCHIP_READ_BUF(uint32_t AddrSel, uint8_t* pBuf, uint16_t len)
     uint16_t addr;
     uint32_t sent_byte = 0;
 
+//#define DEBUG_WIZCHIP_READ_BUF
+
+#ifdef DEBUG_WIZCHIP_READ_BUF
+    printf("START DEBUG_WIZCHIP_READ_BUF\r\n");
+#endif
+
 #ifdef USE_VDM
     AddrSel |= (_W5500_SPI_READ_ | _W5500_SPI_VDM_OP_);
 #else
@@ -256,9 +630,7 @@ void WIZCHIP_READ_BUF(uint32_t AddrSel, uint8_t* pBuf, uint16_t len)
     xfer.len = len;
     xfer.opcode = 0x5a;
     xfer.opcode_len = 3;
-
-#define RBUF_SIZE_TEST 16
-
+    
     do
     {
         addr = ((AddrSel >> 8) + sent_byte) & 0xFFFF;
@@ -289,12 +661,24 @@ void WIZCHIP_READ_BUF(uint32_t AddrSel, uint8_t* pBuf, uint16_t len)
 
         xfer.rx_buf = pBuf + sent_byte;
 
+        #ifdef USE_ASYNC
+        // 20201105 taylor
+        g_async_done_flag = 0;
+        ret = mtk_os_hal_spim_async_transfer((spim_num)spi_master_port_num,
+            &spi_default_config, &xfer, spi_xfer_complete, &xfer);
+        if (ret) {
+            printf("mtk_os_hal_spim_transfer failed\n");
+            return ret;
+        }
+        while(g_async_done_flag != 1);
+        #else
         ret = mtk_os_hal_spim_transfer((spim_num)spi_master_port_num,
             &spi_default_config, &xfer);
         if (ret) {
             printf("mtk_os_hal_spim_transfer failed\n");
             return ret;
         }
+        #endif
         
         sent_byte += RBUF_SIZE_TEST;
     } while (len != 0);
@@ -310,6 +694,11 @@ void WIZCHIP_READ_BUF(uint32_t AddrSel, uint8_t* pBuf, uint16_t len)
     }
     printf("\r\n");
 #endif
+
+#ifdef DEBUG_WIZCHIP_READ_BUF
+    printf("END DEBUG_WIZCHIP_READ_BUF\r\n");
+#endif
+
 }
 
 void WIZCHIP_WRITE_BUF(uint32_t AddrSel, uint8_t *pBuf, uint16_t len)
@@ -320,6 +709,12 @@ void WIZCHIP_WRITE_BUF(uint32_t AddrSel, uint8_t *pBuf, uint16_t len)
     uint8_t temp[4];
     uint16_t addr;
     uint32_t sent_byte = 0;
+
+//#define DEBUG_WIZCHIP_WRITE_BUF
+
+#ifdef DEBUG_WIZCHIP_WRITE_BUF
+    printf("START DEBUG_WIZCHIP_WRITE_BUF\r\n");
+#endif
 
 #ifdef USE_VDM
     AddrSel |= (_W5500_SPI_WRITE_ | _W5500_SPI_VDM_OP_);
@@ -340,8 +735,6 @@ void WIZCHIP_WRITE_BUF(uint32_t AddrSel, uint8_t *pBuf, uint16_t len)
     xfer.len = len;
     xfer.opcode = 0x5a;
     xfer.opcode_len = 3;
-
-#define WBUF_SIZE_TEST 16
 
     do
     {
@@ -373,12 +766,24 @@ void WIZCHIP_WRITE_BUF(uint32_t AddrSel, uint8_t *pBuf, uint16_t len)
 
         xfer.tx_buf = pBuf + sent_byte;
 
+        #ifdef USE_ASYNC
+        // 20201105 taylor
+        g_async_done_flag = 0;
+        ret = mtk_os_hal_spim_async_transfer((spim_num)spi_master_port_num,
+            &spi_default_config, &xfer, spi_xfer_complete, &xfer);
+        if (ret) {
+            printf("mtk_os_hal_spim_transfer failed\n");
+            return ret;
+        }
+        while(g_async_done_flag != 1);
+        #else
         ret = mtk_os_hal_spim_transfer((spim_num)spi_master_port_num,
             &spi_default_config, &xfer);
         if (ret) {
             printf("mtk_os_hal_spim_transfer failed\n");
             return ret;
         }
+        #endif
 
         sent_byte += WBUF_SIZE_TEST;
 
@@ -395,8 +800,13 @@ void WIZCHIP_WRITE_BUF(uint32_t AddrSel, uint8_t *pBuf, uint16_t len)
     }
     printf("\r\n");
 #endif
-}
 
+#ifdef DEBUG_WIZCHIP_WRITE_BUF
+    printf("END DEBUG_WIZCHIP_WRITE_BUF\r\n");
+#endif
+
+}
+#endif
 
 uint16_t getSn_TX_FSR(uint8_t sn)
 {

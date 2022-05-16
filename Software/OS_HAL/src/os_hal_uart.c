@@ -171,6 +171,20 @@ int mtk_os_hal_uart_ctlr_deinit(UART_PORT port_num)
 	return 0;
 }
 
+// 20210310 taylor
+#if 1
+u32 mtk_os_hal_uart_readreg(UART_PORT port_num, u32 reg)
+{
+	struct mtk_uart_controller_rtos* ctlr_rtos =
+		_mtk_os_hal_uart_get_ctlr(port_num);
+
+	if (!ctlr_rtos)
+		return;
+
+	return mtk_mhal_uart_readreg(ctlr_rtos->ctlr, reg);
+}
+#endif
+
 void mtk_os_hal_uart_dumpreg(UART_PORT port_num)
 {
 	struct mtk_uart_controller_rtos *ctlr_rtos =

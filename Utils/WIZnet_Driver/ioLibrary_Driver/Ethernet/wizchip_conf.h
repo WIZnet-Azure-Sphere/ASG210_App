@@ -75,6 +75,16 @@ extern "C" {
 #define _WIZCHIP_                      W5500   // W5100, W5100S, W5200, W5300, W5500
 #endif
 
+#if 0
+// 20201021 taylor
+// for AzureSphere
+
+#define W5500_WITH_A7
+#warning defined W5500_WITH_A7
+#else
+#warning defined W5500_WITH_M4
+#endif
+
 #define _WIZCHIP_IO_MODE_NONE_         0x0000
 #define _WIZCHIP_IO_MODE_BUS_          0x0100 /**< Bus interface mode */
 #define _WIZCHIP_IO_MODE_SPI_          0x0200 /**< SPI interface mode */

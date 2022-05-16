@@ -56,6 +56,10 @@ extern "C" {
 
 #include "../../Ethernet/wizchip_conf.h"
 
+#ifdef W5500_WITH_A7
+// 20201015 taylor
+#else
+
 #if 1
     // 20200527 taylor
 #include "os_hal_uart.h"
@@ -64,6 +68,7 @@ extern "C" {
 #include "../../../../lib/UART.h"
 #include "../../../../lib/Print.h"
 #include "../../../../lib/SPIMaster.h"
+#endif
 #endif
 
 /// @cond DOXY_APPLY_CODE

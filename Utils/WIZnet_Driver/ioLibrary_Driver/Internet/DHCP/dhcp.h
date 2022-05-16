@@ -57,7 +57,6 @@ extern "C" {
  */
 //#define _DHCP_DEBUG_
 
-
 /* Retry to processing DHCP */
 #define	MAX_DHCP_RETRY          2        ///< Maximum retry count
 #define	DHCP_WAIT_TIME          10       ///< Wait Time 10s

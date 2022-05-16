@@ -3,7 +3,15 @@
 
 #include "../../Ethernet/socket.h"
 #include "../../Ethernet/wizchip_conf.h"
+
+#ifdef W5500_WITH_A7
+// 20201015 taylor
+#include <applibs/log.h>
+#include <unistd.h>
+#define printf Log_Debug
+#else
 #include "printf.h"
+#endif
 
 #if LOOPBACK_MODE == LOOPBACK_MAIN_NOBLCOK
 
@@ -26,7 +34,6 @@ int32_t loopback_tcps(uint8_t sn, uint8_t *buf, uint16_t port)
 #ifdef _LOOPBACK_DEBUG_
             getSn_DIPR(sn, destip);
             destport = getSn_DPORT(sn);
-
             printf("%d:Connected - %d.%d.%d.%d : %d\r\n", sn, destip[0], destip[1], destip[2], destip[3], destport);
 #endif
             setSn_IR(sn, Sn_IR_CON);
@@ -47,7 +54,7 @@ int32_t loopback_tcps(uint8_t sn, uint8_t *buf, uint16_t port)
             }
 #if 0
 // Enable print a message of Receiving
-#if 0
+#if 1
 // For AX1 Test
             printf("loopback_tcps() Received data from sn %d: (%d)\r\n", sn, size - sentsize);
 #else
@@ -55,10 +62,27 @@ int32_t loopback_tcps(uint8_t sn, uint8_t *buf, uint16_t port)
             printf("loopback_tcps() Received data from sn %d: (%d) %s\r\n", sn, size - sentsize, buf + sentsize);
 #endif
 #endif
-
+#if 0
+            // 20201015 taylor
+            uint8_t txbuf[10];
+            uint32_t i;
+            for (i = 0; i < sizeof(txbuf); i++)
+            {
+                txbuf[i] = i+'0';
+            }
+            ret = sock_send(sn, txbuf, 10);
+            if (ret < 0)
+            {
+                close_socket(sn);
+                return ret;
+            }
+#else
             while (size != sentsize)
             {
-
+#if 0
+                // 20201015 taylor
+                sleep(1);
+#endif
                 ret = sock_send(sn, buf + sentsize, size - sentsize);
                 if (ret < 0)
                 {
@@ -67,6 +91,7 @@ int32_t loopback_tcps(uint8_t sn, uint8_t *buf, uint16_t port)
                 }
                 sentsize += ret; // Don't care SOCKERR_BUSY, because it is zero.
             }
+#endif
         }
         break;
     case SOCK_CLOSE_WAIT:
@@ -126,11 +151,7 @@ int32_t loopback_tcpc(uint8_t sn, uint8_t *buf, uint8_t *destip, uint16_t destpo
         if (getSn_IR(sn) & Sn_IR_CON) // Socket n interrupt register mask; TCP CON interrupt = connection with peer is successful
         {
 #ifdef _LOOPBACK_DEBUG_
-#if 0
-            Log_Debug("%d:Connected to - %d.%d.%d.%d : %d\r\n", sn, destip[0], destip[1], destip[2], destip[3], destport);
-#else
             printf("%d:Connected to - %d.%d.%d.%d : %d\r\n", sn, destip[0], destip[1], destip[2], destip[3], destport);
-#endif
 #endif
             setSn_IR(sn, Sn_IR_CON); // this interrupt should be write the bit cleared to '1'
         }
@@ -166,26 +187,18 @@ int32_t loopback_tcpc(uint8_t sn, uint8_t *buf, uint8_t *destip, uint16_t destpo
 
     case SOCK_CLOSE_WAIT:
 #ifdef _LOOPBACK_DEBUG_
-        //Log_Debug("%d:CloseWait\r\n",sn);
+        //printf("%d:CloseWait\r\n",sn);
 #endif
         if ((ret = sock_disconnect(sn)) != SOCK_OK)
             return ret;
 #ifdef _LOOPBACK_DEBUG_
-#if 0
-        Log_Debug("%d:Socket Closed\r\n", sn);
-#else
         printf("%d:Socket Closed\r\n", sn);
-#endif
 #endif
         break;
 
     case SOCK_INIT:
 #ifdef _LOOPBACK_DEBUG_
-#if 0
-        Log_Debug("%d:Try to connect to the %d.%d.%d.%d : %d\r\n", sn, destip[0], destip[1], destip[2], destip[3], destport);
-#else
         printf("%d:Try to connect to the %d.%d.%d.%d : %d\r\n", sn, destip[0], destip[1], destip[2], destip[3], destport);
-#endif
 #endif
         if ((ret = sock_connect(sn, destip, destport)) != SOCK_OK)
             return ret; //	Try to TCP connect to the TCP server (destination)
@@ -200,8 +213,8 @@ int32_t loopback_tcpc(uint8_t sn, uint8_t *buf, uint8_t *destip, uint16_t destpo
             return ret; // TCP socket open with 'any_port' port number
         }
 #ifdef _LOOPBACK_DEBUG_
-        //Log_Debug("%d:TCP client loopback start\r\n",sn);
-        //Log_Debug("%d:Socket opened\r\n",sn);
+        //printf("%d:TCP client loopback start\r\n",sn);
+        //printf("%d:Socket opened\r\n",sn);
 #endif
         break;
     default:
@@ -228,11 +241,7 @@ int32_t loopback_udps(uint8_t sn, uint8_t *buf, uint16_t port)
             if (ret <= 0)
             {
 #ifdef _LOOPBACK_DEBUG_
-#if 0
-                Log_Debug("%d: recvfrom error. %ld\r\n", sn, ret);
-#else
                 printf("%d: recvfrom error. %ld\r\n", sn, ret);
-#endif
 #endif
                 return ret;
             }
@@ -244,11 +253,7 @@ int32_t loopback_udps(uint8_t sn, uint8_t *buf, uint16_t port)
                 if (ret < 0)
                 {
 #ifdef _LOOPBACK_DEBUG_
-#if 0
-                    Log_Debug("%d: sock_sendto error. %ld\r\n", sn, ret);
-#else
                     printf("%d: sock_sendto error. %ld\r\n", sn, ret);
-#endif
 #endif
                     return ret;
                 }
@@ -258,16 +263,12 @@ int32_t loopback_udps(uint8_t sn, uint8_t *buf, uint16_t port)
         break;
     case SOCK_CLOSED:
 #ifdef _LOOPBACK_DEBUG_
-        //Log_Debug("%d:UDP loopback start\r\n",sn);
+        //printf("%d:UDP loopback start\r\n",sn);
 #endif
         if ((ret = wiz_socket(sn, Sn_MR_UDP, port, 0x00)) != sn)
             return ret;
 #ifdef _LOOPBACK_DEBUG_
-#if 0
-        Log_Debug("%d:Opened, UDP loopback, port [%d]\r\n", sn, port);
-#else
         printf("%d:Opened, UDP loopback, port [%d]\r\n", sn, port);
-#endif
 #endif
         break;
     default:
